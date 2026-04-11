@@ -6,11 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { LogIn } from 'lucide-react-native';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '../config/firebase';
 import COLORS from '../constants/colors';
-import styles from '../styles/styles';
+import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
 import ActionButton from '../components/ActionButton';
 import Card from '../components/Card';
 
@@ -109,5 +110,39 @@ function LoginScreen({ navigate }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  loginContainer: { flex: 1, backgroundColor: COLORS.bgDark },
+  loginSafeArea: { flex: 1, justifyContent: 'center', paddingHorizontal: SPACING.xxl },
+  loginHeader: { alignItems: 'center', marginBottom: SPACING.xxxl },
+  loginLogo: { 
+    width: 70, 
+    height: 70, 
+    borderRadius: RADIUS.xxl, 
+    backgroundColor: COLORS.primary, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginBottom: SPACING.xxl 
+  },
+  loginLogoText: { fontSize: TYPOGRAPHY.size.xxl, fontWeight: TYPOGRAPHY.weight.bold, color: '#FFF' },
+  loginTitle: { fontSize: TYPOGRAPHY.size.xl, fontWeight: TYPOGRAPHY.weight.bold, color: COLORS.textPrimary, marginBottom: 8 },
+  loginSubtitle: { fontSize: 16, color: COLORS.textSecondary },
+  loginCard: { marginBottom: SPACING.xxl },
+  inputGroup: { marginBottom: SPACING.xl },
+  inputLabel: { fontSize: 14, fontWeight: TYPOGRAPHY.weight.semibold, color: COLORS.textPrimary, marginBottom: 8 },
+  textInput: { 
+    backgroundColor: COLORS.bgInput, 
+    borderRadius: RADIUS.md, 
+    borderWidth: 1, 
+    borderColor: COLORS.border, 
+    paddingHorizontal: 16, 
+    paddingVertical: 14, 
+    fontSize: 16, 
+    color: COLORS.textPrimary 
+  },
+  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  signupText: { fontSize: 15, color: COLORS.textSecondary },
+  signupLink: { fontSize: 15, fontWeight: TYPOGRAPHY.weight.semibold, color: COLORS.accent },
+});
 
 export default LoginScreen;

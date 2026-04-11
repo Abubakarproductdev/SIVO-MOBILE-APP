@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Animated } from 'react-native';
-import styles from '../styles/styles';
+import { View, Text, Animated, StyleSheet } from 'react-native';
+import COLORS from '../constants/colors';
+import { RADIUS, TYPOGRAPHY, SPACING } from '../constants/theme';
 
 // =============================================
 // SPLASH SCREEN
@@ -43,5 +44,40 @@ function SplashScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  splashContainer: {
+    flex: 1,
+    backgroundColor: COLORS.bgDark,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  splashLogo: {
+    width: 100,
+    height: 100,
+    borderRadius: RADIUS.logo,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.xl,
+  },
+  splashLogoText: {
+    fontSize: TYPOGRAPHY.size.display,
+    fontWeight: TYPOGRAPHY.weight.bold,
+    color: '#FFF',
+  },
+  splashTitle: {
+    fontSize: TYPOGRAPHY.size.hero,
+    fontWeight: TYPOGRAPHY.weight.bold,
+    color: COLORS.textPrimary,
+    letterSpacing: 6,
+  },
+  splashTagline: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: SPACING.md,
+    letterSpacing: 1,
+  },
+});
 
 export default SplashScreen;

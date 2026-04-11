@@ -8,6 +8,7 @@ import {
   Switch,
   ActivityIndicator,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import {
   User,
@@ -20,7 +21,7 @@ import {
 } from 'lucide-react-native';
 import { auth, db, doc, getDoc, updateDoc, setDoc, signOut } from '../config/firebase';
 import COLORS from '../constants/colors';
-import styles from '../styles/styles';
+import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
 import ActionButton from '../components/ActionButton';
 import Card from '../components/Card';
 
@@ -240,5 +241,52 @@ function SettingsScreen({ navigate }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  settingsContainer: { flex: 1 },
+  settingsHeader: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: SPACING.lg, 
+    paddingVertical: SPACING.lg, 
+    borderBottomWidth: 1, 
+    borderBottomColor: COLORS.border 
+  },
+  backBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center', marginRight: SPACING.sm },
+  settingsHeaderTitle: { fontSize: TYPOGRAPHY.size.header, fontWeight: TYPOGRAPHY.weight.bold, color: COLORS.textPrimary },
+  settingsTitleSection: { paddingHorizontal: SPACING.xl, paddingTop: SPACING.xl, paddingBottom: SPACING.sm },
+  settingsTitle: { fontSize: TYPOGRAPHY.size.large, fontWeight: TYPOGRAPHY.weight.bold, color: COLORS.textPrimary, marginBottom: 6 },
+  settingsSubtitle: { fontSize: TYPOGRAPHY.size.body, color: COLORS.textSecondary },
+  settingsList: { paddingHorizontal: SPACING.xl, paddingTop: SPACING.lg, gap: SPACING.md },
+  settingsItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    backgroundColor: COLORS.bgCard, 
+    borderRadius: RADIUS.lg, 
+    borderWidth: 1, 
+    borderColor: COLORS.border, 
+    padding: RADIUS.lg 
+  },
+  settingsItemLeft: { flexDirection: 'row', alignItems: 'center' },
+  settingsIcon: { width: 40, height: 40, borderRadius: RADIUS.md, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
+  settingsItemText: { fontSize: TYPOGRAPHY.size.body, fontWeight: TYPOGRAPHY.weight.medium, color: COLORS.textPrimary },
+  profileCard: { margin: SPACING.xl },
+  inputGroup: { marginBottom: SPACING.xl },
+  inputLabel: { fontSize: 14, fontWeight: TYPOGRAPHY.weight.semibold, color: COLORS.textPrimary, marginBottom: 8 },
+  textInput: { 
+    backgroundColor: COLORS.bgInput, 
+    borderRadius: RADIUS.md, 
+    borderWidth: 1, 
+    borderColor: COLORS.border, 
+    paddingHorizontal: 16, 
+    paddingVertical: 14, 
+    fontSize: 16, 
+    color: COLORS.textPrimary 
+  },
+  readOnlyInput: { opacity: 0.6, justifyContent: 'center' },
+  readOnlyText: { fontSize: 16, color: COLORS.textSecondary },
+  logoutSection: { paddingHorizontal: SPACING.xl, paddingTop: SPACING.xxxl, paddingBottom: 40 },
+});
 
 export default SettingsScreen;

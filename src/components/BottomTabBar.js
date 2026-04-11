@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
 import {
   Home,
   MessageSquare,
@@ -7,7 +7,7 @@ import {
   Settings,
 } from 'lucide-react-native';
 import COLORS from '../constants/colors';
-import styles from '../styles/styles';
+import { RADIUS, TYPOGRAPHY, SPACING } from '../constants/theme';
 
 // =============================================
 // BOTTOM TAB BAR
@@ -59,5 +59,14 @@ function BottomTabBar({ currentScreen, navigate }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarWrapper: { backgroundColor: COLORS.bgCard, borderTopWidth: 1, borderTopColor: COLORS.border },
+  tabBar: {  height: 80, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingBottom: 25, paddingTop: 20 },
+  tabItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: SPACING.sm },
+  tabIconWrapper: { width: 44, height: 36, justifyContent: 'center', alignItems: 'center', borderRadius: RADIUS.md },
+  tabIconActive: { backgroundColor: 'rgba(99, 102, 241, 0.15)' },
+  tabLabel: { fontSize: TYPOGRAPHY.size.tiny, fontWeight: TYPOGRAPHY.weight.medium, marginTop: 4 },
+});
 
 export default BottomTabBar;

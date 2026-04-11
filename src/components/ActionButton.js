@@ -5,9 +5,10 @@ import {
   TouchableOpacity,
   Animated,
   ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import COLORS from '../constants/colors';
-import styles from '../styles/styles';
+import { RADIUS, TYPOGRAPHY, SPACING } from '../constants/theme';
 
 // =============================================
 // ANIMATED BUTTON COMPONENT
@@ -24,7 +25,7 @@ function ActionButton({ title, IconComponent, onPress, style, bgColor, loading, 
   };
 
   return (
-    <Animated.View style={{ transform: [{ scale: scaleAnim }], width: '100%' }}>
+    <Animated.View style={[styles.wrapper, { transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity
         activeOpacity={0.8}
         onPressIn={onPressIn}
@@ -45,7 +46,7 @@ function ActionButton({ title, IconComponent, onPress, style, bgColor, loading, 
               {title}
             </Text>
             {IconComponent && (
-              <IconComponent size={20} color={textColor || '#FFF'} style={{ marginLeft: 10 }} />
+              <IconComponent size={20} color={textColor || '#FFF'} style={styles.icon} />
             )}
           </View>
         )}
@@ -53,5 +54,19 @@ function ActionButton({ title, IconComponent, onPress, style, bgColor, loading, 
     </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  wrapper: { width: '100%' },
+  actionButton: { 
+    borderRadius: RADIUS.lg, 
+    paddingVertical: SPACING.lg, 
+    paddingHorizontal: SPACING.xxl, 
+    alignItems: 'center', 
+    justifyContent: 'center' 
+  },
+  actionButtonContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  actionButtonText: { fontSize: TYPOGRAPHY.size.subtitle, fontWeight: TYPOGRAPHY.weight.semibold },
+  icon: { marginLeft: 10 },
+});
 
 export default ActionButton;

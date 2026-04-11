@@ -5,8 +5,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  StyleSheet,
 } from 'react-native';
-import * as Speech from 'expo-speech'; // ✅ IMPORTED SPEECH ENGINE
+import * as Speech from 'expo-speech'; 
 import {
   RotateCcw,
   Volume2,
@@ -14,25 +15,22 @@ import {
 } from 'lucide-react-native';
 import { useChat } from '../../ChatContext';
 import COLORS from '../constants/colors';
+import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
 
 // =============================================
 // LIVE CONVERSATION SCREEN (Chat Module)
 // =============================================
 function LiveConversationScreen({ navigate }) {
-  // ✅ FIX: Recieve 'navigate' prop
-
   const { messages, endConversation } = useChat();
   const scrollViewRef = useRef();
 
   // 1. AUTO-SPEAK LOGIC
-  // Since we use custom nav, we just check the latest message in context
   useEffect(() => {
     if (messages.length > 0) {
-      // Speak the most recent message when screen mounts
       const lastMsg = messages[messages.length - 1];
       speakText(lastMsg.text);
     }
-  }, []); // Run once on mount
+  }, []);
 
   useEffect(() => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -50,7 +48,6 @@ function LiveConversationScreen({ navigate }) {
   };
 
   const handleNext = () => {
-    // ✅ FIX: Use 'navigate' with 'SignToSpeech' string
     if (navigate) navigate('SpeechToSign');
   };
 
@@ -68,47 +65,105 @@ function LiveConversationScreen({ navigate }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.bgDark }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10, paddingHorizontal: 20, paddingBottom: 5, borderBottomWidth: 1, borderColor: COLORS.border }}>
-        <Text style={{ color: COLORS.textPrimary, fontSize: 18, fontWeight: 'bold' }}>Live Chat</Text>
-        <TouchableOpacity onPress={handleEndChat} style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20 }}>
-          <Text style={{ color: COLORS.error, fontSize: 12, fontWeight: 'bold' }}>End</Text>
+    <View style={styles.container}>
+      {/* HEADER */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Live Chat</Text>
+        <TouchableOpacity onPress={handleEndChat} style={styles.endButton}>
+          <Text style={styles.endButtonText}>End</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView ref={scrollViewRef} style={{ flex: 1, paddingHorizontal: 20,paddingTop: 20 }} contentContainerStyle={{ paddingBottom: 20 }}>
+      {/* CHAT AREA */}
+      <ScrollView 
+        ref={scrollViewRef} 
+        style={styles.chatContainer} 
+        contentContainerStyle={styles.chatContent}
+        showsVerticalScrollIndicator={false}
+      >
         {messages.map((msg, index) => (
-          <View key={index} style={{ alignItems: 'flex-end', marginBottom: 15 }}>
-            <View style={{ backgroundColor: COLORS.bgElevated, padding: 15, borderRadius: 16, maxWidth: '85%' }}>
-              <Text style={{ color: '#FFF', fontSize: 18 }}>{msg.text}</Text>
+          <View key={index} style={styles.messageWrapper}>
+            <View style={styles.messageBubble}>
+              <Text style={styles.messageText}>{msg.text}</Text>
             </View>
           </View>
         ))}
       </ScrollView>
 
-      {/* FOOTER */}
-      <View style={{ height: 120, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', backgroundColor: COLORS.bgCard, borderTopWidth: 1, borderColor: COLORS.border }}>
-
+      {/* FOOTER ACTIONS */}
+      <View style={styles.footer}>
         {/* Retry */}
-        <TouchableOpacity onPress={handleNext} style={{ alignItems: 'center', width: 80 }}>
+        <TouchableOpacity onPress={handleNext} style={styles.footerAction}>
           <RotateCcw color={COLORS.textSecondary} size={24} />
-          <Text style={{ color: COLORS.textSecondary, fontSize: 12, marginTop: 5 }}>Retry</Text>
+          <Text style={styles.footerLabel}>Retry</Text>
         </TouchableOpacity>
 
-        {/* Repeat */}
-        <TouchableOpacity onPress={handleRepeat} style={{ width: 70, height: 70, borderRadius: 35, backgroundColor: COLORS.accent, alignItems: 'center', justifyContent: 'center' }}>
+        {/* Repeat (Primary Action) */}
+        <TouchableOpacity onPress={handleRepeat} style={styles.repeatButton}>
           <Volume2 color="#000" size={32} />
         </TouchableOpacity>
 
         {/* Next */}
-        <TouchableOpacity onPress={handleNext} style={{ alignItems: 'center', width: 80 }}>
+        <TouchableOpacity onPress={handleNext} style={styles.footerAction}>
           <ArrowRight color={COLORS.primary} size={28} />
-          <Text style={{ color: COLORS.primary, fontSize: 12, marginTop: 5 }}>Next</Text>
+          <Text style={[styles.footerLabel, { color: COLORS.primary }]}>Next</Text>
         </TouchableOpacity>
-
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.bgDark },
+  header: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+    paddingTop: 10, 
+    paddingHorizontal: SPACING.xl, 
+    paddingBottom: SPACING.sm, 
+    borderBottomWidth: 1, 
+    borderColor: COLORS.border 
+  },
+  headerTitle: { color: COLORS.textPrimary, fontSize: TYPOGRAPHY.size.header, fontWeight: TYPOGRAPHY.weight.bold },
+  endButton: { 
+    backgroundColor: 'rgba(239, 68, 68, 0.2)', 
+    paddingVertical: 6, 
+    paddingHorizontal: SPACING.md, 
+    borderRadius: RADIUS.xxl 
+  },
+  endButtonText: { color: COLORS.error, fontSize: TYPOGRAPHY.size.small, fontWeight: TYPOGRAPHY.weight.bold },
+  chatContainer: { flex: 1, paddingHorizontal: SPACING.xl, paddingTop: SPACING.xl },
+  chatContent: { paddingBottom: SPACING.xl },
+  messageWrapper: { alignItems: 'flex-end', marginBottom: SPACING.lg },
+  messageBubble: { 
+    backgroundColor: COLORS.bgElevated, 
+    padding: SPACING.lg, 
+    borderRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xs,
+    maxWidth: '85%' 
+  },
+  messageText: { color: '#FFF', fontSize: TYPOGRAPHY.size.header },
+  footer: { 
+    height: 120, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-evenly', 
+    backgroundColor: COLORS.bgCard, 
+    borderTopWidth: 1, 
+    borderColor: COLORS.border,
+    paddingBottom: 20 
+  },
+  footerAction: { alignItems: 'center', width: 80 },
+  footerLabel: { color: COLORS.textSecondary, fontSize: TYPOGRAPHY.size.small, marginTop: 5 },
+  repeatButton: { 
+    width: 70, 
+    height: 70, 
+    borderRadius: 35, 
+    backgroundColor: COLORS.accent, 
+    alignItems: 'center', 
+    justifyContent: 'center' 
+  },
+});
 
 export default LiveConversationScreen;

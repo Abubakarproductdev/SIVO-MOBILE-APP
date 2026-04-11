@@ -4,6 +4,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import {
   Video,
@@ -13,7 +14,7 @@ import {
   ArrowRight,
 } from 'lucide-react-native';
 import COLORS from '../constants/colors';
-import styles from '../styles/styles';
+import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
 
 // =============================================
 // HOME SCREEN (Cleaned)
@@ -90,5 +91,23 @@ function HomeScreen({ navigate }) {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  homeContainer: { flex: 1 },
+  homeContent: { padding: SPACING.xl, paddingBottom: SPACING.xxxl },
+  homeWelcome: { fontSize: TYPOGRAPHY.size.xl, fontWeight: TYPOGRAPHY.weight.bold, color: COLORS.textPrimary, marginBottom: 8 },
+  homeSubtitle: { fontSize: TYPOGRAPHY.size.body, color: COLORS.textSecondary, lineHeight: 22, marginBottom: SPACING.xxxl },
+  featureGrid: { flexDirection: 'row', gap: SPACING.lg, marginBottom: SPACING.xxxl },
+  featureCard: { flex: 1, borderRadius: RADIUS.xxl, padding: SPACING.xl, aspectRatio: 1, justifyContent: 'center', alignItems: 'center' },
+  featureIconBg: { width: 56, height: 56, borderRadius: RADIUS.xl, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center', marginBottom: SPACING.lg },
+  featureTitle: { fontSize: TYPOGRAPHY.size.body, fontWeight: TYPOGRAPHY.weight.bold, color: '#FFF', marginBottom: 4 },
+  featureSubtitle: { fontSize: TYPOGRAPHY.size.small, color: 'rgba(255,255,255,0.75)' },
+  sectionTitle: { fontSize: TYPOGRAPHY.size.header, fontWeight: TYPOGRAPHY.weight.bold, color: COLORS.textPrimary, marginBottom: SPACING.lg },
+  quickActionCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.bgCard, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, padding: SPACING.lg, marginBottom: SPACING.md },
+  quickActionIcon: { width: 48, height: 48, borderRadius: RADIUS.lg, justifyContent: 'center', alignItems: 'center' },
+  quickActionText: { flex: 1, marginLeft: SPACING.lg },
+  quickActionTitle: { fontSize: TYPOGRAPHY.size.body, fontWeight: TYPOGRAPHY.weight.semibold, color: COLORS.textPrimary, marginBottom: 2 },
+  quickActionSubtitle: { fontSize: TYPOGRAPHY.size.caption, color: COLORS.textMuted },
+});
 
 export default HomeScreen;

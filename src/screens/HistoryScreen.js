@@ -4,10 +4,11 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import { useChat } from '../../ChatContext';
 import COLORS from '../constants/colors';
-import styles from '../styles/styles';
+import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
 import Card from '../components/Card';
 
 // =============================================
@@ -53,5 +54,15 @@ function HistoryScreen({ navigate }) {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  historyContainer: { flex: 1, padding: SPACING.xl },
+  historyCard: { marginBottom: 14 },
+  historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md },
+  historyTag: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: RADIUS.xxl },
+  historyTagText: { fontSize: TYPOGRAPHY.size.small, fontWeight: TYPOGRAPHY.weight.semibold, color: '#FFF' },
+  historyTime: { fontSize: TYPOGRAPHY.size.small, color: COLORS.textMuted },
+  historyText: { fontSize: TYPOGRAPHY.size.body, color: COLORS.textPrimary, lineHeight: 22, marginBottom: 14 },
+});
 
 export default HistoryScreen;

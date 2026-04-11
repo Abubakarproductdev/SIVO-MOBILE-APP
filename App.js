@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, StatusBar } from 'react-native';
+import { View, StatusBar, StyleSheet } from 'react-native';
 import { ChatProvider } from './ChatContext';
 import { auth, onAuthStateChanged } from './src/config/firebase';
 import COLORS from './src/constants/colors';
-import styles from './src/styles/styles';
 
 // Components
 import TopBar from './src/components/TopBar';
@@ -21,7 +20,7 @@ import SpeechToSignScreen from './src/screens/SpeechToSignScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 
 // =============================================
-// MAIN APP COMPONENT (Fixed Splash & History)
+// MAIN APP COMPONENT
 // =============================================
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('Splash');
@@ -30,19 +29,17 @@ export default function App() {
   // State to hold the specific chat we want to view in History
   const [activeHistoryItem, setActiveHistoryItem] = useState(null);
 
-  // 1. AUTH LISTENER (Restored)
+  // 1. AUTH LISTENER
   useEffect(() => {
     if (auth) {
       const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
         if (currentUser) {
           setUser(currentUser);
-          // If we are currently on Splash or Login, go to Home
           if (currentScreen === 'Login' || currentScreen === 'Splash') {
             setCurrentScreen('Home');
           }
         } else {
           setUser(null);
-          // If we logged out, go to Login
           if (currentScreen !== 'Splash') {
             setCurrentScreen('Login');
           }
@@ -52,7 +49,7 @@ export default function App() {
     }
   }, [currentScreen]);
 
-  // 2. SPLASH TIMER (Restored - Fixes the stuck screen)
+  // 2. SPLASH TIMER
   useEffect(() => {
     if (currentScreen === 'Splash') {
       const timer = setTimeout(() => {
@@ -61,7 +58,7 @@ export default function App() {
         } else {
           setCurrentScreen('Home');
         }
-      }, 2500); // 2.5 seconds delay
+      }, 2500);
       return () => clearTimeout(timer);
     }
   }, [currentScreen, user]);
@@ -69,7 +66,6 @@ export default function App() {
   // 3. NAVIGATION HANDLER
   const navigate = (screenName, data = null) => {
     if (data) {
-      // If data is passed (like a history item), save it so the next screen can use it
       setActiveHistoryItem(data);
     }
     setCurrentScreen(screenName);
@@ -112,3 +108,8 @@ export default function App() {
     </ChatProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.bgDark },
+  screenContainer: { flex: 1 },
+});

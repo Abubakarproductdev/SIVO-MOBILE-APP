@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated } from 'react-native';
+import { View, Animated, StyleSheet } from 'react-native';
 import COLORS from '../constants/colors';
-import styles from '../styles/styles';
 
 // =============================================
 // ANIMATED WAVEFORM COMPONENT
@@ -48,5 +47,10 @@ function AnimatedWaveform({ color }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  waveformContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, height: 70 },
+  waveformBar: { width: 6, borderRadius: 3 },
+});
 
 export default AnimatedWaveform;
