@@ -1,29 +1,36 @@
 {
   "expo": {
     "name": "SivoApp4",
-    "slug": "SivoApp4",
+    "slug": "sivoapp4",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4A2F76"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4A2F76"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.muhammad_abubakar1122.sivoapp4"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "682860b8-da88-40d0-a880-73a613713c0a"
+      }
     }
   }
 }
