@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Audio } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   Video,
   Square,
@@ -16,10 +17,10 @@ import {
 } from 'lucide-react-native';
 import { useChat } from '../../ChatContext';
 import COLORS from '../constants/colors';
-import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
+import { SPACING, RADIUS, TYPOGRAPHY, SHADOWS } from '../constants/theme';
 
 // =============================================
-// SIGN TO SPEECH SCREEN (Camera Module)
+// SIGN TO SPEECH SCREEN (DEEP SPACE)
 // =============================================
 function SignToSpeechScreen({ navigate }) {
   const [status, setStatus] = useState('idle');
@@ -95,7 +96,8 @@ function SignToSpeechScreen({ navigate }) {
   if (status === 'translating') {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.accent} />
+        <View style={styles.loadingGlow} />
+        <ActivityIndicator size="large" color={COLORS.primaryEnd} />
         <Text style={styles.loadingText}>Processing...</Text>
       </View>
     );
@@ -105,8 +107,15 @@ function SignToSpeechScreen({ navigate }) {
     return (
       <View style={styles.permissionContainer}>
         <Text style={styles.permissionText}>Permissions needed.</Text>
-        <TouchableOpacity onPress={requestCameraPermission} style={styles.permissionButton}>
-          <Text style={styles.permissionButtonText}>Grant Permissions</Text>
+        <TouchableOpacity onPress={requestCameraPermission}>
+          <LinearGradient
+            colors={[COLORS.primary, COLORS.primaryEnd]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.permissionButton}
+          >
+            <Text style={styles.permissionButtonText}>Grant Permissions</Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     );
@@ -128,14 +137,28 @@ function SignToSpeechScreen({ navigate }) {
       {/* CONTROLS */}
       <View style={styles.controls}>
         {status === 'idle' ? (
-          <TouchableOpacity onPress={startRecording} style={[styles.controlButton, { backgroundColor: COLORS.accent }]}>
-            <Video color="#000" size={24} />
-            <Text style={[styles.controlButtonText, { color: '#000' }]}>Record</Text>
+          <TouchableOpacity onPress={startRecording} style={styles.controlButtonWrapper}>
+            <LinearGradient
+              colors={[COLORS.accent, COLORS.accentEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.controlButton}
+            >
+              <Video color="#FFF" size={24} />
+              <Text style={styles.controlButtonText}>Record</Text>
+            </LinearGradient>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity onPress={stopRecording} style={[styles.controlButton, { backgroundColor: COLORS.error }]}>
-            <Square color="#FFF" size={24} />
-            <Text style={[styles.controlButtonText, { color: '#FFF' }]}>Stop</Text>
+          <TouchableOpacity onPress={stopRecording} style={styles.controlButtonWrapper}>
+            <LinearGradient
+              colors={[COLORS.error, '#ff6b6b']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.controlButton}
+            >
+              <Square color="#FFF" size={24} />
+              <Text style={styles.controlButtonText}>Stop</Text>
+            </LinearGradient>
           </TouchableOpacity>
         )}
       </View>
@@ -146,31 +169,46 @@ function SignToSpeechScreen({ navigate }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bgDark },
   loadingContainer: { flex: 1, backgroundColor: COLORS.bgDark, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { color: COLORS.textSecondary, marginTop: SPACING.xl },
+  loadingGlow: {
+    position: 'absolute', width: 200, height: 200, borderRadius: 100,
+    backgroundColor: COLORS.primary, opacity: 0.1,
+  },
+  loadingText: { fontFamily: TYPOGRAPHY.fontFamily.body, color: COLORS.textSecondary, marginTop: SPACING.xl },
   permissionContainer: { flex: 1, backgroundColor: COLORS.bgDark, justifyContent: 'center', alignItems: 'center', padding: SPACING.xl },
-  permissionText: { color: '#FFF', marginBottom: SPACING.xl, textAlign: 'center' },
-  permissionButton: { backgroundColor: COLORS.primary, padding: SPACING.lg, borderRadius: RADIUS.md },
-  permissionButtonText: { color: '#FFF', fontWeight: TYPOGRAPHY.weight.bold },
-  cameraWrapper: { flex: 1, margin: SPACING.xl, borderRadius: RADIUS.xxl, overflow: 'hidden', backgroundColor: '#000' },
-  recBadge: { 
-    position: 'absolute', 
-    top: 20, 
-    right: 20, 
-    backgroundColor: 'rgba(0,0,0,0.6)', 
-    paddingHorizontal: 12, 
-    paddingVertical: 6, 
-    borderRadius: RADIUS.xxl 
+  permissionText: { fontFamily: TYPOGRAPHY.fontFamily.body, color: '#FFF', marginBottom: SPACING.xl, textAlign: 'center', fontSize: 16 },
+  permissionButton: { padding: SPACING.lg, borderRadius: RADIUS.lg, paddingHorizontal: SPACING.xxxl },
+  permissionButtonText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: '#FFF', fontSize: 15 },
+  cameraWrapper: {
+    flex: 1,
+    margin: SPACING.xl,
+    borderRadius: RADIUS.xxl,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  recText: { color: COLORS.error, fontWeight: TYPOGRAPHY.weight.bold, fontSize: 12 },
+  recBadge: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: RADIUS.xxl,
+    borderWidth: 1,
+    borderColor: 'rgba(244,63,94,0.3)',
+  },
+  recText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: COLORS.error, fontSize: 12 },
   controls: { height: 120, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.bgDark },
-  controlButton: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    paddingVertical: 15, 
-    paddingHorizontal: 40, 
-    borderRadius: RADIUS.round 
+  controlButtonWrapper: { ...SHADOWS.glowPrimary, borderRadius: RADIUS.round },
+  controlButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: RADIUS.round,
   },
-  controlButtonText: { fontWeight: TYPOGRAPHY.weight.bold, marginLeft: 10 },
+  controlButtonText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: '#FFF', marginLeft: 10, fontSize: 15 },
 });
 
 export default SignToSpeechScreen;

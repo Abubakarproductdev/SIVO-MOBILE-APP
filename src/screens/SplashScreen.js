@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Animated, StyleSheet } from 'react-native';
+import { View, Text, Animated, StyleSheet, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import COLORS from '../constants/colors';
-import { RADIUS, TYPOGRAPHY, SPACING } from '../constants/theme';
+import { RADIUS, TYPOGRAPHY, SPACING, SHADOWS } from '../constants/theme';
+
+const { width, height } = Dimensions.get('window');
 
 // =============================================
-// SPLASH SCREEN
+// SPLASH SCREEN (DEEP SPACE)
 // =============================================
 function SplashScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -28,16 +31,24 @@ function SplashScreen() {
 
   return (
     <View style={styles.splashContainer}>
+      <View style={styles.ambientGlow} />
+
       <Animated.View
         style={{
           opacity: fadeAnim,
           transform: [{ scale: scaleAnim }],
           alignItems: 'center',
+          ...SHADOWS.glowPrimary, // Add a soft glow behind the whole section
         }}
       >
-        <View style={styles.splashLogo}>
+        <LinearGradient
+          colors={[COLORS.primary, COLORS.primaryEnd]} // Violet to Cyan
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.splashLogo}
+        >
           <Text style={styles.splashLogoText}>S</Text>
-        </View>
+        </LinearGradient>
         <Text style={styles.splashTitle}>SIVO</Text>
         <Text style={styles.splashTagline}>Breaking Communication Barriers</Text>
       </Animated.View>
@@ -52,32 +63,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  ambientGlow: {
+    position: 'absolute', 
+    width: width * 1.5, 
+    height: width * 1.5,
+    borderRadius: width * 0.75, 
+    backgroundColor: COLORS.primary, 
+    opacity: 0.1, 
+    top: height * 0.2, // Rough centering behind logo
+  },
   splashLogo: {
     width: 100,
     height: 100,
     borderRadius: RADIUS.logo,
-    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.xl,
   },
   splashLogoText: {
+    fontFamily: TYPOGRAPHY.fontFamily.heading,
     fontSize: TYPOGRAPHY.size.display,
-    fontWeight: TYPOGRAPHY.weight.bold,
     color: '#FFF',
   },
   splashTitle: {
+    fontFamily: TYPOGRAPHY.fontFamily.heading,
     fontSize: TYPOGRAPHY.size.hero,
-    fontWeight: TYPOGRAPHY.weight.bold,
     color: COLORS.textPrimary,
-    letterSpacing: 6,
+    letterSpacing: 8,
   },
   splashTagline: {
+    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
     fontSize: 14,
     color: COLORS.textSecondary,
     marginTop: SPACING.md,
-    letterSpacing: 1,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
 });
 
 export default SplashScreen;
+

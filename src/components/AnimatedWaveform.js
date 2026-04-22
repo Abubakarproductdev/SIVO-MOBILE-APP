@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
 import COLORS from '../constants/colors';
+import { SHADOWS } from '../constants/theme';
 
 // =============================================
-// ANIMATED WAVEFORM COMPONENT
+// ANIMATED WAVEFORM COMPONENT (DEEP SPACE)
 // =============================================
 function AnimatedWaveform({ color }) {
   const anims = [
@@ -29,6 +30,8 @@ function AnimatedWaveform({ color }) {
     return () => loops.forEach((loop) => loop.stop());
   }, []);
 
+  const themeColor = color || COLORS.primary;
+
   return (
     <View style={styles.waveformContainer}>
       {anims.map((anim, index) => (
@@ -38,8 +41,13 @@ function AnimatedWaveform({ color }) {
             styles.waveformBar,
             {
               height: heights[index],
-              backgroundColor: color || COLORS.primary,
+              backgroundColor: themeColor,
               transform: [{ scaleY: anim }],
+              shadowColor: themeColor,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.8,
+              shadowRadius: 10,
+              elevation: 5,
             },
           ]}
         />
@@ -54,3 +62,4 @@ const styles = StyleSheet.create({
 });
 
 export default AnimatedWaveform;
+

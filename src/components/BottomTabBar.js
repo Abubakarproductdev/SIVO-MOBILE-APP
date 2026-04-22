@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
 import {
   Home,
   MessageSquare,
@@ -10,7 +11,7 @@ import COLORS from '../constants/colors';
 import { RADIUS, TYPOGRAPHY, SPACING } from '../constants/theme';
 
 // =============================================
-// BOTTOM TAB BAR
+// BOTTOM TAB BAR (GLASS)
 // =============================================
 function BottomTabBar({ currentScreen, navigate }) {
   const tabs = [
@@ -21,7 +22,7 @@ function BottomTabBar({ currentScreen, navigate }) {
   ];
 
   return (
-    <View style={styles.tabBarWrapper}>
+    <BlurView intensity={40} tint="dark" style={styles.tabBarWrapper}>
       <SafeAreaView>
         <View style={styles.tabBar}>
           {tabs.map((tab) => {
@@ -31,6 +32,7 @@ function BottomTabBar({ currentScreen, navigate }) {
                 key={tab.name}
                 onPress={() => navigate(tab.screen)}
                 style={styles.tabItem}
+                activeOpacity={0.7}
               >
                 <View
                   style={[
@@ -40,13 +42,13 @@ function BottomTabBar({ currentScreen, navigate }) {
                 >
                   <tab.icon
                     size={22}
-                    color={isActive ? COLORS.primary : COLORS.textMuted}
+                    color={isActive ? COLORS.success : COLORS.textMuted} // Success is Cyan, looks great for active
                   />
                 </View>
                 <Text
                   style={[
                     styles.tabLabel,
-                    { color: isActive ? COLORS.primary : COLORS.textMuted },
+                    { color: isActive ? COLORS.success : COLORS.textMuted },
                   ]}
                 >
                   {tab.name}
@@ -56,17 +58,33 @@ function BottomTabBar({ currentScreen, navigate }) {
           })}
         </View>
       </SafeAreaView>
-    </View>
+    </BlurView>
   );
 }
 
 const styles = StyleSheet.create({
-  tabBarWrapper: { backgroundColor: COLORS.bgCard, borderTopWidth: 1, borderTopColor: COLORS.border },
-  tabBar: {  height: 80, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingBottom: 25, paddingTop: 20 },
+  tabBarWrapper: { 
+    backgroundColor: 'rgba(10, 10, 26, 0.65)', 
+    borderTopWidth: 1, 
+    borderTopColor: 'rgba(255,255,255,0.08)' 
+  },
+  tabBar: {  
+    height: 80, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-around', 
+    paddingBottom: 25, 
+    paddingTop: 15 
+  },
   tabItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: SPACING.sm },
   tabIconWrapper: { width: 44, height: 36, justifyContent: 'center', alignItems: 'center', borderRadius: RADIUS.md },
-  tabIconActive: { backgroundColor: 'rgba(99, 102, 241, 0.15)' },
-  tabLabel: { fontSize: TYPOGRAPHY.size.tiny, fontWeight: TYPOGRAPHY.weight.medium, marginTop: 4 },
+  tabIconActive: { backgroundColor: 'rgba(6, 182, 212, 0.15)' }, // Cyan low opacity
+  tabLabel: { 
+    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
+    fontSize: TYPOGRAPHY.size.tiny, 
+    marginTop: 4 
+  },
 });
 
 export default BottomTabBar;
+

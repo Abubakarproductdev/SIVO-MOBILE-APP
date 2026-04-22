@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   Mic,
   Square,
@@ -13,13 +14,13 @@ import {
   User,
 } from 'lucide-react-native';
 import COLORS from '../constants/colors';
-import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
+import { SPACING, RADIUS, TYPOGRAPHY, SHADOWS } from '../constants/theme';
 import ActionButton from '../components/ActionButton';
 import AnimatedWaveform from '../components/AnimatedWaveform';
 import Card from '../components/Card';
 
 // =============================================
-// SPEECH TO SIGN SCREEN
+// SPEECH TO SIGN SCREEN (DEEP SPACE)
 // =============================================
 function SpeechToSignScreen({ navigate }) {
   const [status, setStatus] = useState('idle');
@@ -42,6 +43,7 @@ function SpeechToSignScreen({ navigate }) {
   if (status === 'idle') {
     return (
       <View style={styles.speechScreen}>
+        <View style={styles.ambientGlow} />
         <View style={styles.speechContent}>
           <Text style={styles.speechInstruction}>
             Tap the microphone to start{'\n'}recording your voice
@@ -73,6 +75,7 @@ function SpeechToSignScreen({ navigate }) {
   if (status === 'recording') {
     return (
       <View style={styles.speechScreen}>
+        <View style={styles.ambientGlowAccent} />
         <View style={styles.speechContent}>
           <Text style={styles.speechStatusText}>Recording in progress...</Text>
           <View style={styles.recIndicator}>
@@ -99,6 +102,7 @@ function SpeechToSignScreen({ navigate }) {
   if (status === 'converting') {
     return (
       <View style={styles.speechScreen}>
+        <View style={styles.ambientGlow} />
         <View style={styles.speechContent}>
           <Text style={styles.speechSubtext}>Converting to sign language</Text>
           <Card style={styles.convertedTextCard}>
@@ -106,10 +110,15 @@ function SpeechToSignScreen({ navigate }) {
               Hello, how can I help you today?
             </Text>
           </Card>
-          <View style={styles.avatarCircle}>
-            <User size={64} color={COLORS.textMuted} />
-          </View>
-          <Text style={styles.completeText}>Sign complete</Text>
+          <LinearGradient
+            colors={[COLORS.primary, COLORS.primaryEnd]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.avatarCircle, SHADOWS.glowPrimary]}
+          >
+            <User size={64} color="rgba(255,255,255,0.8)" />
+          </LinearGradient>
+          <Text style={styles.completeText}>Sign complete ✦</Text>
         </View>
         <View style={styles.actionBar}>
           <TouchableOpacity
@@ -127,8 +136,8 @@ function SpeechToSignScreen({ navigate }) {
             style={styles.actionBarItem}
             onPress={() => navigate('SignToSpeech')}
           >
-            <ArrowRight size={24} color={COLORS.textSecondary} />
-            <Text style={styles.actionBarLabel}>Go to Sign</Text>
+            <ArrowRight size={24} color={COLORS.primaryEnd} />
+            <Text style={[styles.actionBarLabel, { color: COLORS.primaryEnd }]}>Go to Sign</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -138,22 +147,30 @@ function SpeechToSignScreen({ navigate }) {
 }
 
 const styles = StyleSheet.create({
-  speechScreen: { flex: 1, padding: SPACING.xxl, justifyContent: 'space-between' },
+  speechScreen: { flex: 1, backgroundColor: COLORS.bgDark, padding: SPACING.xxl, justifyContent: 'space-between' },
+  ambientGlow: {
+    position: 'absolute', top: -60, right: -60, width: 200, height: 200,
+    borderRadius: 100, backgroundColor: COLORS.primary, opacity: 0.12,
+  },
+  ambientGlowAccent: {
+    position: 'absolute', top: -60, left: -60, width: 200, height: 200,
+    borderRadius: 100, backgroundColor: COLORS.accent, opacity: 0.10,
+  },
   speechContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  speechInstruction: { fontSize: TYPOGRAPHY.size.header, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 26 },
-  speechStatusText: { fontSize: TYPOGRAPHY.size.header, color: COLORS.textPrimary, marginBottom: SPACING.lg },
-  recIndicator: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239, 68, 68, 0.15)', paddingHorizontal: 14, paddingVertical: 8, borderRadius: RADIUS.xxl },
+  speechInstruction: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.header, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 28 },
+  speechStatusText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, fontSize: TYPOGRAPHY.size.header, color: '#FFF', marginBottom: SPACING.lg },
+  recIndicator: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(244, 63, 94, 0.15)', paddingHorizontal: 14, paddingVertical: 8, borderRadius: RADIUS.xxl, borderWidth: 1, borderColor: 'rgba(244,63,94,0.25)' },
   recDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.error, marginRight: 8 },
-  recText: { fontSize: 14, fontWeight: TYPOGRAPHY.weight.bold, color: COLORS.error },
+  recText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, fontSize: 14, color: COLORS.error },
   speechActions: { paddingTop: 20 },
-  speechSubtext: { fontSize: TYPOGRAPHY.size.body, color: COLORS.textSecondary, marginBottom: SPACING.xxl },
+  speechSubtext: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.body, color: COLORS.textSecondary, marginBottom: SPACING.xxl },
   convertedTextCard: { width: '100%', marginBottom: SPACING.xxxl },
-  convertedText: { fontSize: TYPOGRAPHY.size.title, fontWeight: TYPOGRAPHY.weight.semibold, color: COLORS.textPrimary, textAlign: 'center' },
-  avatarCircle: { width: 140, height: 140, borderRadius: 70, backgroundColor: COLORS.bgElevated, justifyContent: 'center', alignItems: 'center', marginBottom: SPACING.xxl },
-  completeText: { fontSize: TYPOGRAPHY.size.subtitle, color: COLORS.emerald, fontWeight: TYPOGRAPHY.weight.semibold },
+  convertedText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, fontSize: TYPOGRAPHY.size.title, color: '#FFF', textAlign: 'center' },
+  avatarCircle: { width: 140, height: 140, borderRadius: 70, justifyContent: 'center', alignItems: 'center', marginBottom: SPACING.xxl },
+  completeText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, fontSize: TYPOGRAPHY.size.subtitle, color: COLORS.primaryEnd },
   actionBar: { flexDirection: 'row', justifyContent: 'space-around', paddingTop: SPACING.xxl, borderTopWidth: 1, borderTopColor: COLORS.border },
   actionBarItem: { alignItems: 'center', padding: SPACING.md },
-  actionBarLabel: { fontSize: TYPOGRAPHY.size.small, color: COLORS.textSecondary, marginTop: 6, fontWeight: TYPOGRAPHY.weight.medium },
+  actionBarLabel: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.small, color: COLORS.textSecondary, marginTop: 6 },
   waveformPreview: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, height: 70, marginTop: SPACING.xxxl },
   waveformBar: { width: 6, borderRadius: 3 },
 });

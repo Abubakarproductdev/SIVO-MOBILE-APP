@@ -1,29 +1,32 @@
 // =============================================
-// MODERN SOLID COLOR PALETTE
+// DEEP SPACE COLOR PALETTE
 // =============================================
 const COLORS = {
-  bgDark: '#0D0D0D',
-  bgCard: '#1A1A1A',
-  bgElevated: '#242424',
-  bgInput: '#2A2A2A',
-  primary: '#6366F1',
-  primaryLight: '#818CF8',
-  accent: '#22D3EE',
-  accentAlt: '#14B8A6',
-  coral: '#F97316',
-  rose: '#F43F5E',
-  amber: '#FBBF24',
-  sky: '#38BDF8',
-  violet: '#A78BFA',
-  emerald: '#34D399',
+  bgDark: '#0A0A1A', // Deep space background (near-black deep navy)
+  bgCard: 'rgba(255, 255, 255, 0.03)', // Base for glassmorphism
+  bgElevated: 'rgba(255, 255, 255, 0.05)', // Slightly raised glass
+  bgInput: 'rgba(255, 255, 255, 0.08)',
+  
+  // Gradients will use array of colors or we define start/end
+  primary: '#7c3aed', // Primary gradient start (violet)
+  primaryEnd: '#06b6d4', // Primary gradient end (cyan)
+  
+  accent: '#f43f5e', // Accent gradient start (rose)
+  accentEnd: '#fb923c', // Accent gradient end (orange)
+  
+  coral: '#f43f5e', // Mapped to the new accent start
+  violet: '#7c3aed', // Mapped to primary start
+  
   textPrimary: '#FFFFFF',
-  textSecondary: '#A1A1AA',
-  textMuted: '#71717A',
-  border: '#2E2E2E',
-  borderLight: '#3F3F46',
-  success: '#22C55E',
-  error: '#EF4444',
-  warning: '#F59E0B',
+  textSecondary: '#E2E8F0', // Light gray
+  textMuted: '#94A3B8', // Medium gray
+  
+  border: 'rgba(255, 255, 255, 0.1)',
+  borderLight: 'rgba(255, 255, 255, 0.15)',
+  
+  success: '#22D3EE', // Cyan-ish for success
+  error: '#f43f5e',
+  warning: '#fb923c',
 };
 
 export default COLORS;

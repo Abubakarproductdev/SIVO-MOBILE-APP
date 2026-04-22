@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, StatusBar, StyleSheet } from 'react-native';
+import { useFonts } from 'expo-font';
+import { Orbitron_700Bold } from '@expo-google-fonts/orbitron';
+import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import { ChatProvider } from './ChatContext';
 import { auth, onAuthStateChanged } from './src/config/firebase';
 import COLORS from './src/constants/colors';
@@ -28,6 +31,13 @@ export default function App() {
   
   // State to hold the specific chat we want to view in History
   const [activeHistoryItem, setActiveHistoryItem] = useState(null);
+
+  let [fontsLoaded] = useFonts({
+    Orbitron_700Bold,
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_700Bold,
+  });
 
   // 1. AUTH LISTENER
   useEffect(() => {
@@ -92,6 +102,10 @@ export default function App() {
       default: return <HomeScreen navigate={navigate} />;
     }
   };
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <ChatProvider>
