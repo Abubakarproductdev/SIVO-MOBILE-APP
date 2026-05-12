@@ -17,12 +17,13 @@ import ActionButton from '../components/ActionButton';
 import AnimatedWaveform from '../components/AnimatedWaveform';
 import Card from '../components/Card';
 import { VideoDictionary } from '../config/VideoDictionary';
+import { useChat } from '../../ChatContext';
 
-const SERVER_URL = 'http://192.168.10.6:5000/speech-to-sign';
+const SERVER_URL = 'https://speechtosign-g3e6b7auc3c8cza7.eastasia-01.azurewebsites.net/speech-to-sign';
 
 // Speed options - lowest is slowest. 1.0 = normal. Below 1.0 = slower.
 // User said "slow up to 1.5x" — interpreting as range 0.5x (slow) to 1.5x (fast)
-const SPEED_OPTIONS = [0.5, 0.75, 1.0, 1.25, 1.5];
+const SPEED_OPTIONS = [0.5, 0.75, 1.0, 1.25, 1.5,1.75, 2.0];
 
 export default function SpeechToSignScreen({ navigate }) {
   const [status, setStatus] = useState('idle');
@@ -31,6 +32,7 @@ export default function SpeechToSignScreen({ navigate }) {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [activePlayer, setActivePlayer] = useState(0); // 0 or 1 — ping-pong
+  const { addMessage } = useChat();
 
   // Two video refs for seamless transition
   const videoRefA = useRef(null);
@@ -129,6 +131,7 @@ export default function SpeechToSignScreen({ navigate }) {
       );
 
       if (validSequence.length > 0) {
+        addMessage(text, 'speech-to-sign');
         sequenceRef.current = validSequence;
         indexRef.current = 0;
         setVideoSequence(validSequence);

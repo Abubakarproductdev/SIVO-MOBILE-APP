@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { LogIn } from 'lucide-react-native';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '../config/firebase';
+import { syncCurrentUser } from '../services/userService';
 import COLORS from '../constants/colors';
 import { SPACING, RADIUS, TYPOGRAPHY, SHADOWS } from '../constants/theme';
 import ActionButton from '../components/ActionButton';
@@ -35,6 +36,7 @@ function LoginScreen({ navigate }) {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      await syncCurrentUser();
     } catch (error) {
       Alert.alert('Login Failed', error.message);
     } finally {
@@ -50,6 +52,7 @@ function LoginScreen({ navigate }) {
     setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      await syncCurrentUser();
       Alert.alert('Success', 'Account created!  Logging you in...');
     } catch (error) {
       Alert.alert('Sign Up Failed', error.message);

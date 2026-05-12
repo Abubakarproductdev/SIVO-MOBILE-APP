@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   View,
   Text,
   ScrollView,
@@ -16,7 +18,18 @@ import Card from '../components/Card';
 // HISTORY SCREEN (DEEP SPACE)
 // =============================================
 function HistoryScreen({ navigate }) {
-  const { history } = useChat();
+  const { history, historyLoading, loadHistory } = useChat();
+
+  useEffect(() => {
+    loadHistory().catch((error) => Alert.alert('History Error', error.message));
+  }, [loadHistory]);
+
+  const formatDate = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  };
 
   return (
     <View style={styles.historyBg}>
@@ -28,7 +41,9 @@ function HistoryScreen({ navigate }) {
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
-        {history.length === 0 ? (
+        {historyLoading ? (
+          <ActivityIndicator size="large" color={COLORS.primaryEnd} style={{ marginTop: 80 }} />
+        ) : history.length === 0 ? (
           <View style={{ marginTop: 80, alignItems: 'center' }}>
             <Text style={styles.emptyText}>No saved conversations yet.</Text>
             <Text style={styles.emptySubtext}>Start a session and save it to history.</Text>
@@ -36,7 +51,7 @@ function HistoryScreen({ navigate }) {
         ) : (
           history.map((item, index) => (
             <TouchableOpacity
-              key={index}
+              key={item.id || index}
               activeOpacity={0.9}
               onPress={() => navigate('HistoryDetail', item)}
             >
@@ -50,10 +65,10 @@ function HistoryScreen({ navigate }) {
                   >
                     <Text style={styles.historyTagText}>{item.type}</Text>
                   </LinearGradient>
-                  <Text style={styles.historyTime}>{item.date}</Text>
+                  <Text style={styles.historyTime}>{formatDate(item.endedAt || item.date)}</Text>
                 </View>
                 <Text style={styles.historyText} numberOfLines={2}>
-                  {item.previewText}...
+                  {item.previewText}
                 </Text>
                 <View style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'flex-end' }}>
                   <Text style={styles.viewLink}>Tap to view full chat →</Text>

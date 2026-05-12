@@ -1,102 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  Switch,
   ActivityIndicator,
   Alert,
+  ScrollView,
   StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-import {
-  User,
-  ArrowLeft,
-  ArrowRight,
-  Bell,
-  Moon,
-  LogOut,
-  Send,
-} from 'lucide-react-native';
-import { auth, db, doc, getDoc, updateDoc, setDoc, signOut } from '../config/firebase';
+import { ArrowRight, Bell, LogOut, User } from 'lucide-react-native';
+import { auth, signOut } from '../config/firebase';
 import COLORS from '../constants/colors';
-import { SPACING, RADIUS, TYPOGRAPHY, SHADOWS } from '../constants/theme';
+import { RADIUS, SPACING, TYPOGRAPHY } from '../constants/theme';
 import ActionButton from '../components/ActionButton';
-import Card from '../components/Card';
+import { getCurrentUserProfile, updateCurrentUserProfile } from '../services/userService';
 
-// =============================================
-// SETTINGS SCREEN (DEEP SPACE)
-// =============================================
 function SettingsScreen({ navigate }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [profile, setProfile] = useState(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (!auth?.currentUser) {
-        setLoading(false);
-        return;
-      }
-      const userRef = doc(db, 'users', auth.currentUser.uid);
+    let mounted = true;
+
+    async function loadSettings() {
       try {
-        const docSnap = await getDoc(userRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setIsDarkMode(data.isDarkMode ?? true);
-          setNotificationsEnabled(data.notificationsEnabled ?? true);
-          setName(data.name || '');
-          setPhone(data.phone || '');
-        } else {
-          await setDoc(userRef, {
-            email: auth.currentUser.email,
-            isDarkMode: true,
-            notificationsEnabled: true,
-            createdAt: new Date().toISOString(),
-          });
-        }
+        const userProfile = await getCurrentUserProfile();
+        if (!mounted) return;
+        setProfile(userProfile);
+        setNotificationsEnabled(userProfile.settings?.notificationsEnabled ?? true);
       } catch (error) {
-        console.log('Error loading settings:', error);
+        Alert.alert('Settings Error', error.message);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
+    }
+
+    loadSettings();
+    return () => {
+      mounted = false;
     };
-    fetchUserData();
   }, []);
 
-  const updateToggle = async (key, value) => {
-    if (key === 'isDarkMode') setIsDarkMode(value);
-    if (key === 'notificationsEnabled') setNotificationsEnabled(value);
-    if (auth?.currentUser) {
-      const userRef = doc(db, 'users', auth.currentUser.uid);
-      try {
-        await updateDoc(userRef, { [key]: value });
-      } catch (error) {
-        Alert.alert('Error', 'Could not update setting.');
-      }
-    }
-  };
-
-  const handleSaveProfile = async () => {
-    if (!name.trim()) {
-      Alert.alert('Validation', 'Name cannot be empty.');
-      return;
-    }
+  const updateNotifications = async (value) => {
+    setNotificationsEnabled(value);
     setSaving(true);
     try {
-      const userRef = doc(db, 'users', auth.currentUser.uid);
-      await updateDoc(userRef, { name, phone });
-      Alert.alert('Success', 'Profile updated successfully! ');
-      setEditingProfile(false);
+      const updated = await updateCurrentUserProfile({ notificationsEnabled: value });
+      setProfile(updated);
+      setNotificationsEnabled(updated.settings?.notificationsEnabled ?? value);
     } catch (error) {
-      Alert.alert('Error', 'Failed to save profile.');
+      setNotificationsEnabled((current) => !current);
+      Alert.alert('Update Failed', error.message);
     } finally {
       setSaving(false);
     }
@@ -110,88 +69,23 @@ function SettingsScreen({ navigate }) {
     }
   };
 
-  if (editingProfile) {
-    return (
-      <View style={styles.settingsContainer}>
-        <BlurView intensity={30} tint="dark" style={styles.settingsHeader}>
-          <TouchableOpacity
-            onPress={() => setEditingProfile(false)}
-            style={styles.backBtn}
-          >
-            <ArrowLeft size={24} color={COLORS.textPrimary} />
-          </TouchableOpacity>
-          <Text style={styles.settingsHeaderTitle}>Edit Profile</Text>
-        </BlurView>
-
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Card style={styles.profileCard}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Full Name</Text>
-              <TextInput
-                value={name}
-                onChangeText={setName}
-                style={styles.textInput}
-                placeholder="Enter your name"
-                placeholderTextColor={COLORS.textMuted}
-              />
-            </View>
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Phone Number</Text>
-              <TextInput
-                value={phone}
-                onChangeText={setPhone}
-                style={styles.textInput}
-                keyboardType="phone-pad"
-                placeholder="+1 234 567 890"
-                placeholderTextColor={COLORS.textMuted}
-              />
-            </View>
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Email (Read-only)</Text>
-              <View style={[styles.textInput, styles.readOnlyInput]}>
-                <Text style={styles.readOnlyText}>
-                  {auth?.currentUser?.email || 'Not logged in'}
-                </Text>
-              </View>
-            </View>
-          </Card>
-          <View style={{ marginTop: 24, paddingHorizontal: 20 }}>
-            <ActionButton
-              title={saving ? 'Saving...' : 'Save Changes'}
-              IconComponent={Send}
-              onPress={handleSaveProfile}
-              loading={saving}
-              bgColor={COLORS.primaryEnd}
-            />
-          </View>
-        </ScrollView>
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.settingsContainer}>
-      {/* Ambient glow */}
+    <View style={styles.container}>
       <View style={styles.glowPrimary} />
-
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.settingsTitleSection}>
-          <Text style={styles.settingsTitle}>Settings</Text>
-          <Text style={styles.settingsSubtitle}>Manage your preferences</Text>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.titleSection}>
+          <Text style={styles.title}>Settings</Text>
+          <Text style={styles.subtitle}>Account and app preferences</Text>
         </View>
 
         {loading ? (
-          <ActivityIndicator
-            size="large"
-            color={COLORS.primaryEnd}
-            style={{ marginTop: 40 }}
-          />
+          <ActivityIndicator size="large" color={COLORS.primaryEnd} style={styles.loader} />
         ) : (
           <View style={styles.settingsList}>
-            <TouchableOpacity
-              onPress={() => setEditingProfile(true)}
-              activeOpacity={0.7}
-            >
+            <TouchableOpacity onPress={() => navigate('Profile')} activeOpacity={0.75}>
               <BlurView intensity={15} tint="dark" style={styles.settingsItem}>
                 <View style={styles.settingsItemLeft}>
                   <LinearGradient
@@ -202,7 +96,12 @@ function SettingsScreen({ navigate }) {
                   >
                     <User size={18} color="#FFF" />
                   </LinearGradient>
-                  <Text style={styles.settingsItemText}>Account Details</Text>
+                  <View>
+                    <Text style={styles.settingsItemText}>Profile</Text>
+                    <Text style={styles.settingsSubtext}>
+                      {profile?.email || 'Manage your account'}
+                    </Text>
+                  </View>
                 </View>
                 <ArrowRight size={20} color={COLORS.textMuted} />
               </BlurView>
@@ -218,32 +117,18 @@ function SettingsScreen({ navigate }) {
                 >
                   <Bell size={18} color="#FFF" />
                 </LinearGradient>
-                <Text style={styles.settingsItemText}>Notifications</Text>
+                <View>
+                  <Text style={styles.settingsItemText}>Notifications</Text>
+                  <Text style={styles.settingsSubtext}>
+                    {saving ? 'Saving...' : 'Translation reminders and updates'}
+                  </Text>
+                </View>
               </View>
               <Switch
                 value={notificationsEnabled}
-                onValueChange={(val) => updateToggle('notificationsEnabled', val)}
+                onValueChange={updateNotifications}
+                disabled={saving}
                 trackColor={{ false: 'rgba(255,255,255,0.1)', true: COLORS.primary }}
-                thumbColor="#FFF"
-              />
-            </BlurView>
-
-            <BlurView intensity={15} tint="dark" style={styles.settingsItem}>
-              <View style={styles.settingsItemLeft}>
-                <LinearGradient
-                  colors={['#7c3aed', '#a855f7']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.settingsIcon}
-                >
-                  <Moon size={18} color="#FFF" />
-                </LinearGradient>
-                <Text style={styles.settingsItemText}>Dark Mode</Text>
-              </View>
-              <Switch
-                value={isDarkMode}
-                onValueChange={(val) => updateToggle('isDarkMode', val)}
-                trackColor={{ false: 'rgba(255,255,255,0.1)', true: COLORS.primaryEnd }}
                 thumbColor="#FFF"
               />
             </BlurView>
@@ -264,26 +149,41 @@ function SettingsScreen({ navigate }) {
 }
 
 const styles = StyleSheet.create({
-  settingsContainer: { flex: 1, backgroundColor: COLORS.bgDark },
+  container: { flex: 1, backgroundColor: COLORS.bgDark },
+  content: { paddingBottom: 40 },
   glowPrimary: {
-    position: 'absolute', top: -80, left: -80, width: 250, height: 250,
-    borderRadius: 125, backgroundColor: COLORS.primary, opacity: 0.1,
+    position: 'absolute',
+    top: -80,
+    left: -80,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: COLORS.primary,
+    opacity: 0.1,
   },
-  settingsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-    backgroundColor: 'rgba(10,10,26,0.6)',
+  titleSection: {
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.xxl,
+    paddingBottom: SPACING.sm,
   },
-  backBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center', marginRight: SPACING.sm },
-  settingsHeaderTitle: { fontFamily: TYPOGRAPHY.fontFamily.heading, fontSize: TYPOGRAPHY.size.header, color: '#FFF', letterSpacing: 1 },
-  settingsTitleSection: { paddingHorizontal: SPACING.xl, paddingTop: SPACING.xxl, paddingBottom: SPACING.sm },
-  settingsTitle: { fontFamily: TYPOGRAPHY.fontFamily.heading, fontSize: TYPOGRAPHY.size.large, color: '#FFF', marginBottom: 8, letterSpacing: 1.5 },
-  settingsSubtitle: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.body, color: COLORS.textSecondary },
-  settingsList: { paddingHorizontal: SPACING.xl, paddingTop: SPACING.lg, gap: SPACING.md },
+  title: {
+    fontFamily: TYPOGRAPHY.fontFamily.heading,
+    fontSize: TYPOGRAPHY.size.large,
+    color: '#FFF',
+    marginBottom: 8,
+    letterSpacing: 1.5,
+  },
+  subtitle: {
+    fontFamily: TYPOGRAPHY.fontFamily.body,
+    fontSize: TYPOGRAPHY.size.body,
+    color: COLORS.textSecondary,
+  },
+  loader: { marginTop: 40 },
+  settingsList: {
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.lg,
+    gap: SPACING.md,
+  },
   settingsItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -295,26 +195,35 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     overflow: 'hidden',
   },
-  settingsItemLeft: { flexDirection: 'row', alignItems: 'center' },
-  settingsIcon: { width: 40, height: 40, borderRadius: RADIUS.md, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
-  settingsItemText: { fontFamily: TYPOGRAPHY.fontFamily.bodyMedium, fontSize: TYPOGRAPHY.size.body, color: '#FFF' },
-  profileCard: { margin: SPACING.xl },
-  inputGroup: { marginBottom: SPACING.xl },
-  inputLabel: { fontFamily: TYPOGRAPHY.fontFamily.bodyMedium, fontSize: 13, color: COLORS.textSecondary, marginBottom: 8, letterSpacing: 0.8, textTransform: 'uppercase' },
-  textInput: {
-    backgroundColor: COLORS.bgInput,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontFamily: TYPOGRAPHY.fontFamily.body,
-    fontSize: 16,
+  settingsItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    paddingRight: SPACING.md,
+  },
+  settingsIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  settingsItemText: {
+    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
+    fontSize: TYPOGRAPHY.size.body,
     color: '#FFF',
   },
-  readOnlyInput: { opacity: 0.6, justifyContent: 'center' },
-  readOnlyText: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: 16, color: COLORS.textMuted },
-  logoutSection: { paddingHorizontal: SPACING.xl, paddingTop: SPACING.xxxl, paddingBottom: 40 },
+  settingsSubtext: {
+    fontFamily: TYPOGRAPHY.fontFamily.body,
+    fontSize: TYPOGRAPHY.size.small,
+    color: COLORS.textMuted,
+    marginTop: 3,
+  },
+  logoutSection: {
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.xxxl,
+  },
 });
 
 export default SettingsScreen;

@@ -35,7 +35,7 @@ function HomeScreen({ navigate }) {
         contentContainerStyle={styles.homeContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.homeWelcome}>Hello! 👋</Text>
+        <Text style={styles.homeWelcome}>Hello!</Text>
         <Text style={styles.homeSubtitle}>
           Bridge communication gaps with real-time sign language translation
         </Text>

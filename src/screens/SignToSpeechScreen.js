@@ -29,7 +29,7 @@ function SignToSpeechScreen({ navigate }) {
   const [audioPermission, setAudioPermission] = useState(null);
 
   const { addMessage } = useChat();
-  const SERVER_URL = "https://online-production-e372.up.railway.app/predict_sentence";
+  const SERVER_URL = "http://192.168.18.31:5000/predict_sentence";
 
   // Auto-Reset on mount
   useEffect(() => {
@@ -78,7 +78,7 @@ function SignToSpeechScreen({ navigate }) {
       setStatus('idle');
 
       if (data.sentence && data.sentence.trim() !== "") {
-        addMessage(data.sentence);
+        addMessage(data.sentence, 'sign-to-speech');
         if (navigate) {
           navigate('Conversation');
         }

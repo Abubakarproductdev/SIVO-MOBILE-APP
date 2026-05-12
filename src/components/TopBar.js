@@ -8,7 +8,7 @@ import { RADIUS, TYPOGRAPHY, SPACING } from '../constants/theme';
 // =============================================
 // TOP BAR (GLASS)
 // =============================================
-function TopBar({ screen, onBackClick }) {
+function TopBar({ screen, onBackClick, onProfilePress }) {
   const titles = {
     Home: 'SIVO',
     History: 'History',
@@ -16,6 +16,7 @@ function TopBar({ screen, onBackClick }) {
     SpeechToSign: 'Speech → Sign',
     SignToSpeech: 'Sign → Speech',
     Settings: 'Settings',
+    Profile: 'Profile',
   };
 
   const isHomeScreen = screen === 'Home';
@@ -32,7 +33,7 @@ function TopBar({ screen, onBackClick }) {
             </TouchableOpacity>
           )}
           <Text style={styles.topBarTitle}>{titles[screen] || 'SIVO'}</Text>
-          <TouchableOpacity style={styles.topBarIcon}>
+          <TouchableOpacity onPress={onProfilePress} style={styles.topBarIcon}>
             <View style={styles.topBarAvatar}>
               <User size={18} color={COLORS.textPrimary} />
             </View>

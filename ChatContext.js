@@ -1,46 +1,99 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { auth, onAuthStateChanged } from './src/config/firebase';
+import { fetchConversations, saveConversation } from './src/services/conversationService';
 
 const ChatContext = createContext();
 
+function makeClientId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function makeTimestamp(date = new Date()) {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 export const ChatProvider = ({ children }) => {
-  // 1. Current Active Conversation
   const [messages, setMessages] = useState([]);
-  
-  // 2. Saved History (Array of past conversations)
   const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [conversationStartedAt, setConversationStartedAt] = useState(null);
 
-  // Add message to current chat
-  const addMessage = (text) => {
+  const loadHistory = useCallback(async () => {
+    if (!auth?.currentUser) {
+      setHistory([]);
+      return [];
+    }
+
+    setHistoryLoading(true);
+    try {
+      const conversations = await fetchConversations();
+      setHistory(conversations);
+      return conversations;
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        loadHistory().catch((error) => console.log('History load error:', error.message));
+      } else {
+        setMessages([]);
+        setHistory([]);
+        setConversationStartedAt(null);
+      }
+    });
+
+    return unsubscribe;
+  }, [loadHistory]);
+
+  const addMessage = useCallback((text, direction = 'sign-to-speech') => {
+    const cleanText = typeof text === 'string' ? text.trim() : '';
+    if (!cleanText) return null;
+
+    const now = new Date();
+    const normalizedDirection = direction === 'speech-to-sign' ? 'speech-to-sign' : 'sign-to-speech';
     const newMessage = {
-      id: Date.now().toString(),
-      text: text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      id: makeClientId(),
+      text: cleanText,
+      direction: normalizedDirection,
+      source: normalizedDirection === 'speech-to-sign' ? 'speech' : 'sign',
+      timestamp: makeTimestamp(now),
+      createdAt: now.toISOString(),
     };
+
+    setConversationStartedAt((current) => current || now.toISOString());
     setMessages((prev) => [...prev, newMessage]);
-  };
+    return newMessage;
+  }, []);
 
-  // 3. NEW FUNCTION: End Conversation & Save to History
-  const endConversation = () => {
-    if (messages.length === 0) return; // Don't save empty chats
+  const endConversation = useCallback(async () => {
+    if (messages.length === 0) return null;
 
-    const newHistoryItem = {
-      id: Date.now().toString(),
-      type: 'Sign → Speech', // Defaulting since this is the working module
-      date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      previewText: messages[0].text, // Show first message as preview
-      fullMessages: messages, // Save the whole chat content
-      color: '#FF7F50', // Use your accent color (Hardcoded or from COLORS)
-    };
+    const saved = await saveConversation({
+      messages,
+      startedAt: conversationStartedAt || messages[0].createdAt,
+      endedAt: new Date().toISOString(),
+    });
 
-    // Add to history (newest first)
-    setHistory((prev) => [newHistoryItem, ...prev]);
-    
-    // Clear current chat
+    setHistory((prev) => [saved, ...prev.filter((item) => item.id !== saved.id)]);
     setMessages([]);
-  };
+    setConversationStartedAt(null);
+    return saved;
+  }, [conversationStartedAt, messages]);
 
   return (
-    <ChatContext.Provider value={{ messages, history, addMessage, endConversation }}>
+    <ChatContext.Provider
+      value={{
+        messages,
+        history,
+        historyLoading,
+        addMessage,
+        endConversation,
+        loadHistory,
+      }}
+    >
       {children}
     </ChatContext.Provider>
   );
