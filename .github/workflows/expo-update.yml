@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18.x
+          node-version: 20.x
           cache: npm
 
       - name: Install EAS CLI
@@ -25,6 +25,6 @@ jobs:
         run: npm ci
 
       - name: Publish update
-        run: eas update --branch production --message "Auto update from GitHub Actions" --non-interactive
+        run: eas update --branch production --message "Auto update from GitHub Actions"
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
