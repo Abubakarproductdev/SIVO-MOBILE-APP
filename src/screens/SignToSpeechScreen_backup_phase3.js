@@ -30,7 +30,7 @@ function SignToSpeechScreen({ navigate }) {
   const [audioPermission, setAudioPermission] = useState(null);
 
   const { addMessage } = useChat();
-  const SERVER_URL = "https://containerizedserver-gabqa0csbhakb2fg.centralindia-01.azurewebsites.net/predict_sentence";
+  const SERVER_URL = "http://192.168.10.8:5000/predict_sentence";
 
   // Auto-Reset on mount
   useEffect(() => {
@@ -85,12 +85,6 @@ function SignToSpeechScreen({ navigate }) {
 
       const uploadDuration = Date.now() - uploadStartTime;
       console.log(`[Profiler] Upload finished at ${new Date().toISOString()}. Took ${uploadDuration}ms`);
-      console.log(`[Profiler] Server Status: ${uploadResult.status}`);
-      console.log(`[Profiler] Server Response: ${uploadResult.body}`);
-
-      if (uploadResult.status !== 200) {
-        throw new Error(`Server returned status ${uploadResult.status}: ${uploadResult.body}`);
-      }
 
       const data = JSON.parse(uploadResult.body);
 

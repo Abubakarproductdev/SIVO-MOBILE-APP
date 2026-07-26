@@ -19,7 +19,7 @@ import Card from '../components/Card';
 import { VideoDictionary } from '../config/VideoDictionary';
 import { useChat } from '../../ChatContext';
 
-const SERVER_URL = 'https://speechtosign-g3e6b7auc3c8cza7.eastasia-01.azurewebsites.net/speech-to-sign';
+const SERVER_URL = 'https://speechtosign-dkcxagh5bhfrdwd2.centralindia-01.azurewebsites.net/speech-to-sign';
 
 // Speed options - lowest is slowest. 1.0 = normal. Below 1.0 = slower.
 // User said "slow up to 1.5x" — interpreting as range 0.5x (slow) to 1.5x (fast)
