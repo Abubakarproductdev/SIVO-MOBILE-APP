@@ -10,9 +10,12 @@
     "preview": {
       "android": {
         "buildType": "apk" 
-      }
+      },
+      "channel": "production"
     },
-    "production": {}
+    "production": {
+      "channel": "production"
+    }
   },
   "submit": {
     "production": {}
