@@ -285,8 +285,8 @@ function SignToSpeechScreen({ navigate }) {
               <Text style={styles.controlButtonText}>Stop</Text>
             </LinearGradient>
           </TouchableOpacity>
-        )}
-      </View>
+        </View>
+      )}
     </View>
   );
 }
