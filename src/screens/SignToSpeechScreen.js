@@ -211,29 +211,24 @@ function SignToSpeechScreen({ navigate }) {
     }
 
     if (status === 'calibration-2') {
+      const silhouettePath = "M 280,360 A 40,40 0 1,0 280,440 A 40,40 0 1,0 280,360 M 240,370 C 240,300 220,220 180,220 L 50,220 L 50,580 L 180,580 C 220,580 240,500 240,430 C 230,410 230,390 240,370 Z";
+      
       return (
         <View style={styles.calibrationOverlayTransparent} pointerEvents="none">
           <Svg height="100%" width="100%" viewBox="0 0 400 800" style={StyleSheet.absoluteFill}>
             <Defs>
               <Mask id="mask" x="0" y="0" height="100%" width="100%">
                 <Rect height="100%" width="100%" fill="white" />
-                <Path
-                  d="M 200,150 m -70,0 a 70,70 0 1,0 140,0 a 70,70 0 1,0 -140,0 M 130,260 C 50,300 20,400 20,800 L 380,800 C 380,400 350,300 270,260 C 240,290 160,290 130,260 Z"
-                  fill="black"
-                  rotation="90"
-                  origin="200, 400"
-                />
+                <Path d={silhouettePath} fill="black" />
               </Mask>
             </Defs>
             <Rect height="100%" width="100%" fill="rgba(15, 23, 42, 0.75)" mask="url(#mask)" />
             <Path
-              d="M 200,150 m -70,0 a 70,70 0 1,0 140,0 a 70,70 0 1,0 -140,0 M 130,260 C 50,300 20,400 20,800 L 380,800 C 380,400 350,300 270,260 C 240,290 160,290 130,260 Z"
+              d={silhouettePath}
               fill="none"
               stroke={COLORS.primaryEnd}
               strokeWidth="4"
               strokeDasharray="10, 15"
-              rotation="90"
-              origin="200, 400"
             />
           </Svg>
         </View>
