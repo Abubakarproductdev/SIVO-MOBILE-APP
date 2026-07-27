@@ -12,7 +12,6 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Audio } from 'expo-av';
 import { Accelerometer } from 'expo-sensors';
-import Svg, { Path, Defs, Mask, Rect } from 'react-native-svg';
 import { uploadAsync, FileSystemUploadType, getInfoAsync } from 'expo-file-system/legacy';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -193,8 +192,6 @@ function SignToSpeechScreen({ navigate }) {
   }
 
   const renderCalibrationOverlay = () => {
-    if (status !== 'calibration-1' && status !== 'calibration-2') return null;
-
     if (status === 'calibration-1') {
       const spin = rotationAnim.interpolate({
         inputRange: [-1, 0],
@@ -209,31 +206,7 @@ function SignToSpeechScreen({ navigate }) {
         </View>
       );
     }
-
-    if (status === 'calibration-2') {
-      const silhouettePath = "M 280,360 A 40,40 0 1,0 280,440 A 40,40 0 1,0 280,360 M 240,370 C 240,300 220,220 180,220 L 50,220 L 50,580 L 180,580 C 220,580 240,500 240,430 C 230,410 230,390 240,370 Z";
-      
-      return (
-        <View style={styles.calibrationOverlayTransparent} pointerEvents="none">
-          <Svg height="100%" width="100%" viewBox="0 0 400 800" style={StyleSheet.absoluteFill}>
-            <Defs>
-              <Mask id="mask" x="0" y="0" height="100%" width="100%">
-                <Rect height="100%" width="100%" fill="white" />
-                <Path d={silhouettePath} fill="black" />
-              </Mask>
-            </Defs>
-            <Rect height="100%" width="100%" fill="rgba(15, 23, 42, 0.75)" mask="url(#mask)" />
-            <Path
-              d={silhouettePath}
-              fill="none"
-              stroke={COLORS.primaryEnd}
-              strokeWidth="4"
-              strokeDasharray="10, 15"
-            />
-          </Svg>
-        </View>
-      );
-    }
+    return null;
   };
 
   return (
@@ -335,12 +308,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: SPACING.xxl,
-    zIndex: 5,
-  },
-  calibrationOverlayTransparent: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
     zIndex: 5,
   },
   calibrationContent: {
