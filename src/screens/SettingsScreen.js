@@ -10,15 +10,16 @@ import {
   View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { ArrowRight, Bell, LogOut, User } from 'lucide-react-native';
 import { auth, signOut } from '../config/firebase';
-import COLORS from '../constants/colors';
 import { RADIUS, SPACING, TYPOGRAPHY } from '../constants/theme';
 import ActionButton from '../components/ActionButton';
 import { getCurrentUserProfile, updateCurrentUserProfile } from '../services/userService';
+import { useTheme } from '../context/ThemeContext';
 
-function SettingsScreen({ navigate }) {
+export default function SettingsScreen({ navigate }) {
+  const { colors, colorMode, toggleColorMode } = useTheme();
+  const styles = createStyles(colors);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState(null);
@@ -71,7 +72,6 @@ function SettingsScreen({ navigate }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.glowPrimary} />
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -82,19 +82,19 @@ function SettingsScreen({ navigate }) {
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color={COLORS.primaryEnd} style={styles.loader} />
+          <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
         ) : (
           <View style={styles.settingsList}>
             <TouchableOpacity onPress={() => navigate('Profile')} activeOpacity={0.75}>
-              <BlurView intensity={15} tint="dark" style={styles.settingsItem}>
+              <View style={styles.settingsItem}>
                 <View style={styles.settingsItemLeft}>
                   <LinearGradient
-                    colors={[COLORS.primary, COLORS.primaryEnd]}
+                    colors={[colors.primary, colors.primaryEnd]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.settingsIcon}
                   >
-                    <User size={18} color="#FFF" />
+                    <User size={18} color={colors.onPrimary} />
                   </LinearGradient>
                   <View>
                     <Text style={styles.settingsItemText}>Profile</Text>
@@ -103,19 +103,19 @@ function SettingsScreen({ navigate }) {
                     </Text>
                   </View>
                 </View>
-                <ArrowRight size={20} color={COLORS.textMuted} />
-              </BlurView>
+                <ArrowRight size={20} color={colors.textMuted} />
+              </View>
             </TouchableOpacity>
 
-            <BlurView intensity={15} tint="dark" style={styles.settingsItem}>
+            <View style={styles.settingsItem}>
               <View style={styles.settingsItemLeft}>
                 <LinearGradient
-                  colors={[COLORS.accent, COLORS.accentEnd]}
+                  colors={[colors.primary, colors.primaryEnd]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.settingsIcon}
                 >
-                  <Bell size={18} color="#FFF" />
+                  <Bell size={18} color={colors.onPrimary} />
                 </LinearGradient>
                 <View>
                   <Text style={styles.settingsItemText}>Notifications</Text>
@@ -128,10 +128,28 @@ function SettingsScreen({ navigate }) {
                 value={notificationsEnabled}
                 onValueChange={updateNotifications}
                 disabled={saving}
-                trackColor={{ false: 'rgba(255,255,255,0.1)', true: COLORS.primary }}
-                thumbColor="#FFF"
+                trackColor={{ false: colors.borderLight, true: colors.primary }}
+                thumbColor={colors.onPrimary}
               />
-            </BlurView>
+            </View>
+
+            <View style={styles.settingsItem}>
+              <View style={styles.settingsItemLeft}>
+                <View style={styles.settingsIcon}>
+                  <Text style={styles.modeIcon}>{colorMode === 'light' ? '☀' : '◐'}</Text>
+                </View>
+                <View>
+                  <Text style={styles.settingsItemText}>Light Mode</Text>
+                  <Text style={styles.settingsSubtext}>Switch black and white app colors</Text>
+                </View>
+              </View>
+              <Switch
+                value={colorMode === 'light'}
+                onValueChange={toggleColorMode}
+                trackColor={{ false: colors.borderLight, true: colors.primary }}
+                thumbColor={colors.onPrimary}
+              />
+            </View>
           </View>
         )}
 
@@ -148,19 +166,9 @@ function SettingsScreen({ navigate }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bgDark },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bgDark },
   content: { paddingBottom: 40 },
-  glowPrimary: {
-    position: 'absolute',
-    top: -80,
-    left: -80,
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: COLORS.primary,
-    opacity: 0.1,
-  },
   titleSection: {
     paddingHorizontal: SPACING.xl,
     paddingTop: SPACING.xxl,
@@ -169,14 +177,14 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: TYPOGRAPHY.fontFamily.heading,
     fontSize: TYPOGRAPHY.size.large,
-    color: '#FFF',
+    color: colors.textPrimary,
     marginBottom: 8,
     letterSpacing: 1.5,
   },
   subtitle: {
     fontFamily: TYPOGRAPHY.fontFamily.body,
     fontSize: TYPOGRAPHY.size.body,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   loader: { marginTop: 40 },
   settingsList: {
@@ -188,10 +196,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.bgCard,
+    backgroundColor: colors.bgCard,
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     padding: SPACING.lg,
     overflow: 'hidden',
   },
@@ -212,18 +220,17 @@ const styles = StyleSheet.create({
   settingsItemText: {
     fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
     fontSize: TYPOGRAPHY.size.body,
-    color: '#FFF',
+    color: colors.textPrimary,
   },
   settingsSubtext: {
     fontFamily: TYPOGRAPHY.fontFamily.body,
     fontSize: TYPOGRAPHY.size.small,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     marginTop: 3,
   },
   logoutSection: {
     paddingHorizontal: SPACING.xl,
     paddingTop: SPACING.xxxl,
   },
+  modeIcon: { color: colors.primary, fontSize: 22, fontFamily: TYPOGRAPHY.fontFamily.bodyBold },
 });
-
-export default SettingsScreen;

@@ -1,15 +1,13 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Animated, StyleSheet, Dimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import COLORS from '../constants/colors';
+import { View, Animated, StyleSheet, Dimensions, Image } from 'react-native';
 import { RADIUS, TYPOGRAPHY, SPACING, SHADOWS } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
-// =============================================
-// SPLASH SCREEN (DEEP SPACE)
-// =============================================
 function SplashScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
@@ -22,84 +20,44 @@ function SplashScreen() {
       }),
       Animated.spring(scaleAnim, {
         toValue: 1,
-        tension: 50,
-        friction: 7,
+        tension: 40,
+        friction: 8,
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, scaleAnim]);
 
   return (
     <View style={styles.splashContainer}>
-      <View style={styles.ambientGlow} />
-
       <Animated.View
         style={{
           opacity: fadeAnim,
           transform: [{ scale: scaleAnim }],
           alignItems: 'center',
-          ...SHADOWS.glowPrimary, // Add a soft glow behind the whole section
+          ...SHADOWS.glowPrimary, // Crimson glow behind logo
         }}
       >
-        <LinearGradient
-          colors={[COLORS.primary, COLORS.primaryEnd]} // Violet to Cyan
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.splashLogo}
-        >
-          <Text style={styles.splashLogoText}>S</Text>
-        </LinearGradient>
-        <Text style={styles.splashTitle}>SIVO</Text>
-        <Text style={styles.splashTagline}>Breaking Communication Barriers</Text>
+        <Image 
+          source={require('../../assets/logo/logo2.png')}
+          style={styles.splashLogoImage}
+          resizeMode="contain"
+        />
       </Animated.View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   splashContainer: {
     flex: 1,
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: colors.bgDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  ambientGlow: {
-    position: 'absolute', 
-    width: width * 1.5, 
-    height: width * 1.5,
-    borderRadius: width * 0.75, 
-    backgroundColor: COLORS.primary, 
-    opacity: 0.1, 
-    top: height * 0.2, // Rough centering behind logo
-  },
-  splashLogo: {
-    width: 100,
-    height: 100,
-    borderRadius: RADIUS.logo,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: SPACING.xl,
-  },
-  splashLogoText: {
-    fontFamily: TYPOGRAPHY.fontFamily.heading,
-    fontSize: TYPOGRAPHY.size.display,
-    color: '#FFF',
-  },
-  splashTitle: {
-    fontFamily: TYPOGRAPHY.fontFamily.heading,
-    fontSize: TYPOGRAPHY.size.hero,
-    color: COLORS.textPrimary,
-    letterSpacing: 8,
-  },
-  splashTagline: {
-    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginTop: SPACING.md,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
+  splashLogoImage: {
+    width: width * 0.7,
+    height: 150,
+  }
 });
 
 export default SplashScreen;
-

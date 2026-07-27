@@ -1,14 +1,12 @@
 import React from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Platform, StatusBar } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Platform, StatusBar, Image } from 'react-native';
 import { User, ArrowLeft } from 'lucide-react-native';
-import COLORS from '../constants/colors';
 import { RADIUS, TYPOGRAPHY, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
-// =============================================
-// TOP BAR (GLASS)
-// =============================================
 function TopBar({ screen, onBackClick, onProfilePress }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const titles = {
     Home: 'SIVO',
     History: 'History',
@@ -16,39 +14,49 @@ function TopBar({ screen, onBackClick, onProfilePress }) {
     SpeechToSign: 'Speech → Sign',
     SignToSpeech: 'Sign → Speech',
     Settings: 'Settings',
+    Upgrade: 'Upgrade',
+    SupportedWords: 'Words Supported',
     Profile: 'Profile',
   };
 
   const isHomeScreen = screen === 'Home';
 
   return (
-    <BlurView intensity={40} tint="dark" style={styles.topBarWrapper}>
+    <View style={styles.topBarWrapper}>
       <SafeAreaView>
         <View style={styles.topBar}>
           {isHomeScreen ? (
             <View style={styles.topBarIconPlaceholder} />
           ) : (
             <TouchableOpacity onPress={onBackClick} style={styles.topBarIcon}>
-              <ArrowLeft size={24} color={COLORS.textPrimary} />
+              <ArrowLeft size={24} color={colors.textPrimary} />
             </TouchableOpacity>
           )}
-          <Text style={styles.topBarTitle}>{titles[screen] || 'SIVO'}</Text>
+          {isHomeScreen ? (
+            <Image 
+              source={require('../../assets/logo/logo2.png')} 
+              style={{ width: 100, height: 60 }} 
+              resizeMode="contain" 
+            />
+          ) : (
+            <Text style={styles.topBarTitle}>{titles[screen] || 'SIVO'}</Text>
+          )}
           <TouchableOpacity onPress={onProfilePress} style={styles.topBarIcon}>
             <View style={styles.topBarAvatar}>
-              <User size={18} color={COLORS.textPrimary} />
+              <User size={18} color={colors.primary} />
             </View>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    </BlurView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   topBarWrapper: { 
-    backgroundColor: 'rgba(10, 10, 26, 0.65)', 
+    backgroundColor: colors.bgDark, 
     borderBottomWidth: 1, 
-    borderBottomColor: 'rgba(255,255,255,0.08)', 
+    borderBottomColor: colors.border, 
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 
   },
   topBar: { height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.lg },
@@ -56,12 +64,11 @@ const styles = StyleSheet.create({
   topBarIconPlaceholder: { width: 44 },
   topBarTitle: { 
     fontFamily: TYPOGRAPHY.fontFamily.heading,
-    fontSize: TYPOGRAPHY.size.title, 
-    color: '#FFF', 
+    fontSize: TYPOGRAPHY.size?.title || 20, 
+    color: colors.textPrimary, 
     letterSpacing: 1.5 
   },
-  topBarAvatar: { width: 36, height: 36, borderRadius: RADIUS.md, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  topBarAvatar: { width: 36, height: 36, borderRadius: RADIUS.md, backgroundColor: colors.primaryLight, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: colors.primaryMuted },
 });
 
 export default TopBar;
-

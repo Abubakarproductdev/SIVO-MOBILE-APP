@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { auth, onAuthStateChanged } from './src/config/firebase';
 import { fetchConversations, saveConversation } from './src/services/conversationService';
 
@@ -17,6 +17,7 @@ export const ChatProvider = ({ children }) => {
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [conversationStartedAt, setConversationStartedAt] = useState(null);
+  const historyRequestRef = useRef(null);
 
   const loadHistory = useCallback(async () => {
     if (!auth?.currentUser) {
@@ -24,14 +25,22 @@ export const ChatProvider = ({ children }) => {
       return [];
     }
 
+    // Auth state and the History screen can request this at the same time.
+    // Reuse the active request instead of showing two loaders/errors.
+    if (historyRequestRef.current) return historyRequestRef.current;
+
     setHistoryLoading(true);
-    try {
-      const conversations = await fetchConversations();
-      setHistory(conversations);
-      return conversations;
-    } finally {
-      setHistoryLoading(false);
-    }
+    historyRequestRef.current = fetchConversations()
+      .then((conversations) => {
+        setHistory(conversations);
+        return conversations;
+      })
+      .finally(() => {
+        historyRequestRef.current = null;
+        setHistoryLoading(false);
+      });
+
+    return historyRequestRef.current;
   }, []);
 
   useEffect(() => {

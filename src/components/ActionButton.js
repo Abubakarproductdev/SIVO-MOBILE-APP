@@ -8,13 +8,12 @@ import {
   StyleSheet,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import COLORS from '../constants/colors';
-import { RADIUS, TYPOGRAPHY, SPACING, SHADOWS } from '../constants/theme';
+import { RADIUS, TYPOGRAPHY, SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
-// =============================================
-// ANIMATED BUTTON COMPONENT (DEEP SPACE)
-// =============================================
 function ActionButton({ title, IconComponent, onPress, style, bgColor, loading, textColor, isAccent }) {
+  const { colors: themeColors } = useTheme();
+  const styles = createStyles(themeColors);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0.6)).current;
 
@@ -33,18 +32,15 @@ function ActionButton({ title, IconComponent, onPress, style, bgColor, loading, 
   };
 
   const colors = isAccent 
-    ? [COLORS.accent, COLORS.accentEnd] 
+    ? [themeColors.primary, themeColors.primaryEnd] 
     : bgColor 
-      ? [bgColor, bgColor] // Fallback if solid color is strictly requested
-      : [COLORS.primary, COLORS.primaryEnd];
-
-  const shadowProvider = isAccent ? SHADOWS.glowAccent : SHADOWS.glowPrimary;
+      ? [bgColor, bgColor] 
+      : [themeColors.primary, themeColors.primaryEnd];
 
   return (
     <Animated.View style={[
       styles.wrapper, 
       { transform: [{ scale: scaleAnim }], opacity: glowAnim },
-      shadowProvider,
       style
     ]}>
       <TouchableOpacity
@@ -61,14 +57,14 @@ function ActionButton({ title, IconComponent, onPress, style, bgColor, loading, 
           style={styles.actionButton}
         >
           {loading ? (
-            <ActivityIndicator color={textColor || '#FFF'} />
+            <ActivityIndicator color={textColor || themeColors.onPrimary} />
           ) : (
             <View style={styles.actionButtonContent}>
-              <Text style={[styles.actionButtonText, { color: textColor || '#FFF' }]}>
+              <Text style={[styles.actionButtonText, { color: textColor || themeColors.onPrimary }]}>
                 {title}
               </Text>
               {IconComponent && (
-                <IconComponent size={20} color={textColor || '#FFF'} style={styles.icon} />
+                <IconComponent size={20} color={textColor || themeColors.onPrimary} style={styles.icon} />
               )}
             </View>
           )}
@@ -78,7 +74,7 @@ function ActionButton({ title, IconComponent, onPress, style, bgColor, loading, 
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   wrapper: { 
     width: '100%',
     borderRadius: RADIUS.lg,
@@ -90,12 +86,12 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: colors.border,
   },
   actionButtonContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   actionButtonText: { 
     fontFamily: TYPOGRAPHY.fontFamily.bodyBold,
-    fontSize: TYPOGRAPHY.size.subtitle, 
+    fontSize: TYPOGRAPHY.size?.subtitle || 16, 
     letterSpacing: 0.5,
   },
   icon: { marginLeft: 10 },

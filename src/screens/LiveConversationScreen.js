@@ -9,20 +9,18 @@ import {
 } from 'react-native';
 import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import {
   RotateCcw,
   Volume2,
   ArrowRight,
 } from 'lucide-react-native';
 import { useChat } from '../../ChatContext';
-import COLORS from '../constants/colors';
 import { SPACING, RADIUS, TYPOGRAPHY, SHADOWS } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
-// =============================================
-// LIVE CONVERSATION SCREEN (DEEP SPACE)
-// =============================================
 function LiveConversationScreen({ navigate }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { messages, endConversation } = useChat();
   const scrollViewRef = useRef();
   const [saving, setSaving] = useState(false);
@@ -82,16 +80,13 @@ function LiveConversationScreen({ navigate }) {
 
   return (
     <View style={styles.container}>
-      {/* Ambient glow */}
-      <View style={styles.glowAccent} />
-
       {/* HEADER */}
-      <BlurView intensity={30} tint="dark" style={styles.header}>
+      <View style={styles.header}>
         <Text style={styles.headerTitle}>Live Chat</Text>
         <TouchableOpacity onPress={handleEndChat} style={styles.endButton} disabled={saving}>
           <Text style={styles.endButtonText}>{saving ? 'Saving' : 'End'}</Text>
         </TouchableOpacity>
-      </BlurView>
+      </View>
 
       {/* CHAT AREA */}
       <ScrollView
@@ -111,83 +106,80 @@ function LiveConversationScreen({ navigate }) {
               isSpeechToSign ? styles.messageWrapperRight : styles.messageWrapperLeft,
             ]}
           >
-            <LinearGradient
-              colors={isSpeechToSign ? [COLORS.primary, COLORS.primaryEnd] : [COLORS.accent, COLORS.accentEnd]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={[
-                styles.messageBubble,
-                isSpeechToSign ? styles.messageBubbleRight : styles.messageBubbleLeft,
-              ]}
-            >
-              <Text style={styles.messageMeta}>
-                {isSpeechToSign ? 'Speech to Sign' : 'Sign to Speech'}
-              </Text>
-              <Text style={styles.messageText}>{msg.text}</Text>
-              {!!msg.timestamp && <Text style={styles.messageTime}>{msg.timestamp}</Text>}
-            </LinearGradient>
+            {isSpeechToSign ? (
+              <View style={[styles.messageBubble, styles.messageBubbleRight, styles.speechToSignBubble]}>
+                <Text style={styles.messageMeta}>Speech to Sign</Text>
+                <Text style={styles.messageText}>{msg.text}</Text>
+                {!!msg.timestamp && <Text style={styles.messageTime}>{msg.timestamp}</Text>}
+              </View>
+            ) : (
+              <LinearGradient
+                colors={[colors.accent, colors.accentEnd]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.messageBubble, styles.messageBubbleLeft]}
+              >
+                <Text style={styles.messageMeta}>Sign to Speech</Text>
+                <Text style={styles.messageText}>{msg.text}</Text>
+                {!!msg.timestamp && <Text style={styles.messageTime}>{msg.timestamp}</Text>}
+              </LinearGradient>
+            )}
           </View>
           );
         })}
       </ScrollView>
 
       {/* FOOTER ACTIONS */}
-      <BlurView intensity={30} tint="dark" style={styles.footer}>
+      <View style={styles.footer}>
         {/* Retry */}
         <TouchableOpacity onPress={handleRetry} style={styles.footerAction}>
-          <RotateCcw color={COLORS.textSecondary} size={24} />
+          <RotateCcw color={colors.textSecondary} size={24} />
           <Text style={styles.footerLabel}>Retry</Text>
         </TouchableOpacity>
 
         {/* Repeat (Primary Action) */}
         <TouchableOpacity onPress={handleRepeat} style={styles.repeatButtonWrapper}>
           <LinearGradient
-            colors={[COLORS.accent, COLORS.accentEnd]}
+            colors={[colors.accent, colors.accentEnd]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.repeatButton}
           >
-            <Volume2 color="#FFF" size={32} />
+            <Volume2 color={colors.onPrimary} size={32} />
           </LinearGradient>
         </TouchableOpacity>
 
         {/* Next */}
         <TouchableOpacity onPress={handleNext} style={styles.footerAction}>
-          <ArrowRight color={COLORS.primaryEnd} size={28} />
-          <Text style={[styles.footerLabel, { color: COLORS.primaryEnd }]}>Next</Text>
+          <ArrowRight color={colors.accent} size={28} />
+          <Text style={[styles.footerLabel, { color: colors.accent }]}>Next</Text>
         </TouchableOpacity>
-      </BlurView>
+      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bgDark },
-  glowAccent: {
-    position: 'absolute', bottom: 100, left: -80, width: 200, height: 200,
-    borderRadius: 100, backgroundColor: COLORS.accent, opacity: 0.08,
-  },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bgDark },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 10,
+    paddingTop: SPACING.xl,
     paddingHorizontal: SPACING.xl,
-    paddingBottom: SPACING.sm,
+    paddingBottom: SPACING.lg,
+    backgroundColor: colors.bgCard,
     borderBottomWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: 'rgba(10,10,26,0.6)',
+    borderColor: colors.border,
   },
-  headerTitle: { fontFamily: TYPOGRAPHY.fontFamily.heading, color: '#FFF', fontSize: TYPOGRAPHY.size.header, letterSpacing: 1 },
+  headerTitle: { fontFamily: TYPOGRAPHY.fontFamily.heading, color: colors.textPrimary, fontSize: 20 },
   endButton: {
-    backgroundColor: 'rgba(244, 63, 94, 0.2)',
+    backgroundColor: colors.error,
     paddingVertical: 6,
     paddingHorizontal: SPACING.md,
     borderRadius: RADIUS.xxl,
-    borderWidth: 1,
-    borderColor: 'rgba(244,63,94,0.3)',
   },
-  endButtonText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: COLORS.error, fontSize: TYPOGRAPHY.size.small },
+  endButtonText: { fontFamily: TYPOGRAPHY.fontFamily.heading, color: colors.onPrimary, fontSize: 14 },
   chatContainer: { flex: 1, paddingHorizontal: SPACING.xl, paddingTop: SPACING.xl },
   chatContent: { paddingBottom: SPACING.xl },
   messageWrapper: { marginBottom: SPACING.lg },
@@ -200,38 +192,41 @@ const styles = StyleSheet.create({
   },
   messageBubbleLeft: { borderTopLeftRadius: RADIUS.sm },
   messageBubbleRight: { borderTopRightRadius: RADIUS.sm },
+  speechToSignBubble: {
+    backgroundColor: colors.bgElevated,
+  },
   messageMeta: {
     fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
-    color: 'rgba(255,255,255,0.78)',
-    fontSize: TYPOGRAPHY.size.tiny,
+    color: colors.textSecondary,
+    fontSize: 10,
     marginBottom: 4,
     textTransform: 'uppercase',
   },
-  messageText: { fontFamily: TYPOGRAPHY.fontFamily.body, color: '#FFF', fontSize: TYPOGRAPHY.size.header },
+  messageText: { fontFamily: TYPOGRAPHY.fontFamily.body, color: colors.textPrimary, fontSize: 16 },
   messageTime: {
     fontFamily: TYPOGRAPHY.fontFamily.body,
-    color: 'rgba(255,255,255,0.72)',
+    color: colors.textMuted,
     fontSize: 10,
     marginTop: 6,
     alignSelf: 'flex-end',
   },
   footer: {
-    height: 120,
+    height: 100,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-evenly',
-    backgroundColor: 'rgba(10,10,26,0.65)',
+    backgroundColor: colors.bgCard,
     borderTopWidth: 1,
-    borderColor: COLORS.border,
-    paddingBottom: 20,
+    borderColor: colors.border,
+    paddingBottom: SPACING.md,
   },
   footerAction: { alignItems: 'center', width: 80 },
-  footerLabel: { fontFamily: TYPOGRAPHY.fontFamily.body, color: COLORS.textSecondary, fontSize: TYPOGRAPHY.size.small, marginTop: 5 },
-  repeatButtonWrapper: { ...SHADOWS.glowAccent },
+  footerLabel: { fontFamily: TYPOGRAPHY.fontFamily.body, color: colors.textSecondary, fontSize: 12, marginTop: 5 },
+  repeatButtonWrapper: { ...SHADOWS.glowAccent, marginTop: -20 },
   repeatButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
   },

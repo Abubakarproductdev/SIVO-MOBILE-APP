@@ -8,22 +8,18 @@ import {
   Alert,
   StyleSheet,
   Dimensions,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { LogIn } from 'lucide-react-native';
-import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '../config/firebase';
+import { auth, signInWithEmailAndPassword } from '../config/firebase';
 import { syncCurrentUser } from '../services/userService';
-import COLORS from '../constants/colors';
-import { SPACING, RADIUS, TYPOGRAPHY, SHADOWS } from '../constants/theme';
+import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
 import ActionButton from '../components/ActionButton';
-import Card from '../components/Card';
+import { useTheme } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
-// =============================================
-// LOGIN SCREEN
-// =============================================
-// Helper functions for validation and errors
 const validateEmail = (email) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
@@ -34,12 +30,6 @@ const getFriendlyErrorMessage = (error) => {
   if (code.includes('auth/invalid-credential') || code.includes('auth/user-not-found') || code.includes('auth/wrong-password')) {
     return 'Incorrect email or password. Please try again.';
   }
-  if (code.includes('auth/email-already-in-use')) {
-    return 'An account with this email address already exists.';
-  }
-  if (code.includes('auth/weak-password')) {
-    return 'Your password is too weak. Please use at least 6 characters.';
-  }
   if (code.includes('auth/network-request-failed')) {
     return 'Network error. Please check your internet connection.';
   }
@@ -48,10 +38,15 @@ const getFriendlyErrorMessage = (error) => {
   }
   return error.message || 'An unknown error occurred. Please try again.';
 };
+
 function LoginScreen({ navigate }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -73,62 +68,32 @@ function LoginScreen({ navigate }) {
     }
   };
 
-  const handleSignUp = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter an email and a password to sign up.');
-      return;
-    }
-    if (!validateEmail(email)) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address.');
-      return;
-    }
-    if (password.length < 6) {
-      Alert.alert('Weak Password', 'Your password must be at least 6 characters long.');
-      return;
-    }
-    setLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      await syncCurrentUser();
-      Alert.alert('Success', 'Your account has been created successfully!');
-    } catch (error) {
-      Alert.alert('Sign Up Failed', getFriendlyErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <View style={styles.loginContainer}>
-      {/* Ambient glows */}
-      <View style={styles.glowPrimary} />
-      <View style={styles.glowAccent} />
-
-      <SafeAreaView style={styles.loginSafeArea}>
-        <View style={styles.loginHeader}>
-          <LinearGradient
-            colors={[COLORS.primary, COLORS.primaryEnd]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.loginLogo}
-          >
-            <Text style={styles.loginLogoText}>S</Text>
-          </LinearGradient>
-          <Text style={styles.loginTitle}>Welcome Back</Text>
-          <Text style={styles.loginSubtitle}>Sign in to continue</Text>
+    <View style={styles.container}>
+      <Image
+        source={require('../../assets/images/login_hero.jpg')}
+        style={styles.heroImage}
+        resizeMode="cover"
+      />
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in to continue</Text>
         </View>
 
-        <Card style={styles.loginCard}>
+        <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Email</Text>
             <TextInput
               value={email}
               onChangeText={setEmail}
-              style={styles.textInput}
+              onFocus={() => setIsEmailFocused(true)}
+              onBlur={() => setIsEmailFocused(false)}
+              style={[styles.textInput, isEmailFocused && styles.textInputFocused]}
               keyboardType="email-address"
               autoCapitalize="none"
               placeholder="Enter your email"
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={colors.textMuted}
             />
           </View>
 
@@ -137,26 +102,38 @@ function LoginScreen({ navigate }) {
             <TextInput
               value={password}
               onChangeText={setPassword}
-              style={styles.textInput}
+              onFocus={() => setIsPasswordFocused(true)}
+              onBlur={() => setIsPasswordFocused(false)}
+              style={[styles.textInput, isPasswordFocused && styles.textInputFocused]}
               secureTextEntry
               placeholder="Enter your password"
-              placeholderTextColor={COLORS.textMuted}
+              placeholderTextColor={colors.textMuted}
             />
           </View>
 
-          <ActionButton
-            title="Sign In"
-            IconComponent={LogIn}
-            onPress={handleSignIn}
-            loading={loading}
-            bgColor={COLORS.primary}
-          />
-        </Card>
+          <TouchableOpacity onPress={handleSignIn} disabled={loading} style={styles.loginButtonWrapper}>
+            <LinearGradient
+              colors={[colors.primary, colors.primaryEnd]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.loginButtonGradient}
+            >
+              {loading ? (
+                <Text style={styles.loginButtonText}>Signing in...</Text>
+              ) : (
+                <>
+                  <LogIn color={colors.onPrimary} size={20} style={{ marginRight: 8 }} />
+                  <Text style={styles.loginButtonText}>Sign In</Text>
+                </>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
 
-        <View style={styles.signupRow}>
-          <Text style={styles.signupText}>Don't have an account?  </Text>
-          <TouchableOpacity onPress={handleSignUp} disabled={loading}>
-            <Text style={styles.signupLink}>Sign up</Text>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Don't have an account? </Text>
+          <TouchableOpacity onPress={() => navigate('SignUp')} disabled={loading}>
+            <Text style={styles.footerLink}>Sign Up</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -164,47 +141,102 @@ function LoginScreen({ navigate }) {
   );
 }
 
-const styles = StyleSheet.create({
-  loginContainer: { flex: 1, backgroundColor: COLORS.bgDark },
-  glowPrimary: {
-    position: 'absolute', top: -80, left: -80, width: 280, height: 280,
-    borderRadius: 140, backgroundColor: COLORS.primary, opacity: 0.12,
+const createStyles = (colors) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bgDark,
   },
-  glowAccent: {
-    position: 'absolute', bottom: 50, right: -80, width: 220, height: 220,
-    borderRadius: 110, backgroundColor: COLORS.accent, opacity: 0.1,
+  heroImage: {
+    width: width,
+    height: width * 0.6,
+    position: 'absolute',
+    top: 0,
+    opacity: 0.8,
   },
-  loginSafeArea: { flex: 1, justifyContent: 'center', paddingHorizontal: SPACING.xxl },
-  loginHeader: { alignItems: 'center', marginBottom: SPACING.xxxl },
-  loginLogo: { 
-    width: 80, 
-    height: 80, 
-    borderRadius: RADIUS.xxl, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    marginBottom: SPACING.xxl,
-    ...SHADOWS.glowPrimary,
+  safeArea: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.xxl || 24,
+    marginTop: width * 0.4,
   },
-  loginLogoText: { fontFamily: TYPOGRAPHY.fontFamily.heading, fontSize: TYPOGRAPHY.size.xl, color: '#FFF' },
-  loginTitle: { fontFamily: TYPOGRAPHY.fontFamily.heading, fontSize: TYPOGRAPHY.size.title, color: '#FFF', marginBottom: 8, letterSpacing: 1.5 },
-  loginSubtitle: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: 16, color: COLORS.textSecondary, letterSpacing: 0.5 },
-  loginCard: { marginBottom: SPACING.xxl },
-  inputGroup: { marginBottom: SPACING.xl },
-  inputLabel: { fontFamily: TYPOGRAPHY.fontFamily.bodyMedium, fontSize: 13, color: COLORS.textSecondary, marginBottom: 8, letterSpacing: 0.8, textTransform: 'uppercase' },
-  textInput: { 
-    backgroundColor: COLORS.bgInput, 
-    borderRadius: RADIUS.lg, 
-    borderWidth: 1, 
-    borderColor: COLORS.border, 
-    paddingHorizontal: 16, 
-    paddingVertical: 14, 
+  header: {
+    marginBottom: SPACING.xxxl || 32,
+  },
+  title: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: TYPOGRAPHY.size?.title || 28,
+    color: colors.textPrimary,
+    marginBottom: 8,
+    letterSpacing: 1.5,
+  },
+  subtitle: {
     fontFamily: TYPOGRAPHY.fontFamily.body,
-    fontSize: 16, 
-    color: '#FFF',
+    fontSize: 16,
+    color: colors.textSecondary,
+    letterSpacing: 0.5,
   },
-  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  signupText: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: 15, color: COLORS.textSecondary },
-  signupLink: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, fontSize: 15, color: COLORS.primaryEnd },
+  formContainer: {
+    backgroundColor: colors.bgCard,
+    padding: SPACING.xl || 20,
+    borderRadius: RADIUS.xl || 20,
+    marginBottom: SPACING.xxl || 24,
+  },
+  inputGroup: {
+    marginBottom: SPACING.xl || 20,
+  },
+  inputLabel: {
+    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: 8,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  textInput: {
+    backgroundColor: colors.bgInput,
+    borderRadius: RADIUS.lg || 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontFamily: TYPOGRAPHY.fontFamily.body,
+    fontSize: 16,
+    color: colors.textPrimary,
+  },
+  textInputFocused: {
+    borderColor: colors.primary,
+  },
+  loginButtonWrapper: {
+    borderRadius: RADIUS.lg || 16,
+    overflow: 'hidden',
+    marginTop: SPACING.sm || 8,
+  },
+  loginButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+  },
+  loginButtonText: {
+    color: colors.onPrimary,
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 16,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerText: {
+    fontFamily: TYPOGRAPHY.fontFamily.body,
+    fontSize: 15,
+    color: colors.textSecondary,
+  },
+  footerLink: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 15,
+    color: colors.primary,
+  },
 });
 
 export default LoginScreen;

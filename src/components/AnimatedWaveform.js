@@ -1,11 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
-import COLORS from '../constants/colors';
-import { SHADOWS } from '../constants/theme';
 
-// =============================================
-// ANIMATED WAVEFORM COMPONENT (DEEP SPACE)
-// =============================================
 function AnimatedWaveform({ color }) {
   const anims = [
     useRef(new Animated.Value(0.4)).current,
@@ -30,7 +25,7 @@ function AnimatedWaveform({ color }) {
     return () => loops.forEach((loop) => loop.stop());
   }, []);
 
-  const themeColor = color || COLORS.primary;
+  const themeColor = color || '#FF6B2C';
 
   return (
     <View style={styles.waveformContainer}>
@@ -62,4 +57,3 @@ const styles = StyleSheet.create({
 });
 
 export default AnimatedWaveform;
-

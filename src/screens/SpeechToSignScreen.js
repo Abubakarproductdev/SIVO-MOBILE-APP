@@ -11,13 +11,13 @@ import { Mic, Square, RotateCcw, Gauge } from 'lucide-react-native';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import { Video, ResizeMode } from 'expo-av';
 
-import COLORS from '../constants/colors';
 import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
 import ActionButton from '../components/ActionButton';
 import AnimatedWaveform from '../components/AnimatedWaveform';
 import Card from '../components/Card';
 import { VideoDictionary } from '../config/VideoDictionary';
 import { useChat } from '../../ChatContext';
+import { useTheme } from '../context/ThemeContext';
 
 const SERVER_URL = 'https://speechtosign-dkcxagh5bhfrdwd2.centralindia-01.azurewebsites.net/speech-to-sign';
 
@@ -26,6 +26,8 @@ const SERVER_URL = 'https://speechtosign-dkcxagh5bhfrdwd2.centralindia-01.azurew
 const SPEED_OPTIONS = [0.5, 0.75, 1.0, 1.25, 1.5,1.75, 2.0];
 
 export default function SpeechToSignScreen({ navigate }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [status, setStatus] = useState('idle');
   const [transcript, setTranscript] = useState('');
   const [videoSequence, setVideoSequence] = useState([]);
@@ -254,7 +256,7 @@ export default function SpeechToSignScreen({ navigate }) {
             title="Start Recording"
             IconComponent={Mic}
             onPress={startRecording}
-            bgColor={COLORS.primary}
+            bgColor={colors.primary}
           />
         </View>
       </View>
@@ -270,7 +272,7 @@ export default function SpeechToSignScreen({ navigate }) {
             {transcript || 'Waiting for speech...'}
           </Text>
           <View style={{ marginVertical: 40 }}>
-            <AnimatedWaveform color={COLORS.coral} />
+            <AnimatedWaveform color={colors.primary} />
           </View>
         </View>
         <View style={styles.actionContainer}>
@@ -278,8 +280,8 @@ export default function SpeechToSignScreen({ navigate }) {
             title="Stop & Translate"
             IconComponent={Square}
             onPress={stopRecording}
-            bgColor={COLORS.bgElevated}
-            textColor={COLORS.textPrimary}
+            bgColor={colors.bgElevated}
+            textColor={colors.textPrimary}
           />
         </View>
       </View>
@@ -290,7 +292,7 @@ export default function SpeechToSignScreen({ navigate }) {
     return (
       <View style={styles.container}>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.subText}>Analyzing NLP & fetching sequence...</Text>
         </View>
       </View>
@@ -360,7 +362,7 @@ export default function SpeechToSignScreen({ navigate }) {
             )}
 
             {!activeSource && (
-              <Text style={{ color: COLORS.error }}>
+              <Text style={{ color: colors.error }}>
                 Missing asset: {currentWord}.mp4
               </Text>
             )}
@@ -370,7 +372,7 @@ export default function SpeechToSignScreen({ navigate }) {
 
           {/* Speed Control */}
           <TouchableOpacity style={styles.speedButton} onPress={cycleSpeed}>
-            <Gauge size={18} color={COLORS.primary} />
+            <Gauge size={18} color={colors.primary} />
             <Text style={styles.speedText}>Speed: {playbackSpeed}x</Text>
           </TouchableOpacity>
         </View>
@@ -383,13 +385,13 @@ export default function SpeechToSignScreen({ navigate }) {
           >
             <RotateCcw
               size={24}
-              color={status === 'playing' ? COLORS.border : COLORS.textSecondary}
+              color={status === 'playing' ? colors.border : colors.textSecondary}
             />
             <Text style={styles.navLabel}>Replay</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.navItem} onPress={reset}>
-            <Mic size={24} color={COLORS.textSecondary} />
+            <Mic size={24} color={colors.textSecondary} />
             <Text style={styles.navLabel}>New</Text>
           </TouchableOpacity>
         </View>
@@ -400,39 +402,45 @@ export default function SpeechToSignScreen({ navigate }) {
   return null;
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: SPACING.xxl, justifyContent: 'space-between' },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, padding: SPACING.xxl, justifyContent: 'space-between', backgroundColor: colors.bgDark },
   centerContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   instructionText: {
-    fontSize: TYPOGRAPHY.size.header,
-    color: COLORS.textSecondary,
+    fontSize: TYPOGRAPHY.size?.header || 28,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 26,
+    fontFamily: TYPOGRAPHY.fontFamily.body,
   },
   statusTitle: {
-    fontSize: TYPOGRAPHY.size.header,
-    color: COLORS.textPrimary,
+    fontSize: TYPOGRAPHY.size?.header || 28,
+    color: colors.textPrimary,
     marginBottom: SPACING.md,
+    fontFamily: TYPOGRAPHY.fontFamily.heading,
   },
   liveTranscript: {
-    fontSize: TYPOGRAPHY.size.title,
-    color: COLORS.primary,
+    fontSize: TYPOGRAPHY.size?.title || 24,
+    color: colors.primary,
     textAlign: 'center',
     fontStyle: 'italic',
     paddingHorizontal: 20,
+    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
   },
   actionContainer: { paddingTop: 20 },
   subText: {
-    fontSize: TYPOGRAPHY.size.body,
-    color: COLORS.textSecondary,
+    fontSize: TYPOGRAPHY.size?.body || 16,
+    color: colors.textSecondary,
     marginTop: 20,
+    fontFamily: TYPOGRAPHY.fontFamily.body,
   },
   
   videoWrapper: {
     width: 350,
     height: 480,
     borderRadius: 20,
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: colors.bgCard,
+    borderWidth: 1,
+    borderColor: colors.border,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
@@ -442,9 +450,9 @@ const styles = StyleSheet.create({
   videoPlayer: { width: '100%', height: '100%' },
   videoOverlay: { position: 'absolute', top: 0, left: 0 },
   progressText: {
-    fontSize: TYPOGRAPHY.size.subtitle,
-    color: COLORS.textSecondary,
-    fontWeight: TYPOGRAPHY.weight.medium,
+    fontSize: TYPOGRAPHY.size?.subtitle || 14,
+    color: colors.primary,
+    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
     marginBottom: SPACING.md,
   },
   speedButton: {
@@ -452,14 +460,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm,
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: colors.bgElevated,
     borderRadius: RADIUS.lg,
     gap: 8,
   },
   speedText: {
-    fontSize: TYPOGRAPHY.size.body,
-    color: COLORS.primary,
-    fontWeight: TYPOGRAPHY.weight.semibold,
+    fontSize: TYPOGRAPHY.size?.body || 16,
+    color: colors.primary,
+    fontFamily: TYPOGRAPHY.fontFamily.bodyBold,
     marginLeft: 6,
   },
   bottomNav: {
@@ -467,13 +475,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingTop: SPACING.xxl,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   navItem: { alignItems: 'center', padding: SPACING.md },
   navLabel: {
-    fontSize: TYPOGRAPHY.size.small,
-    color: COLORS.textSecondary,
+    fontSize: TYPOGRAPHY.size?.small || 12,
+    color: colors.textSecondary,
     marginTop: 6,
-    fontWeight: TYPOGRAPHY.weight.medium,
+    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
   },
 });

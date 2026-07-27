@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { BackHandler, View, StatusBar, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
-import { Orbitron_700Bold } from '@expo-google-fonts/orbitron';
 import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import { ChatProvider } from './ChatContext';
 import { auth, onAuthStateChanged } from './src/config/firebase';
 import { syncCurrentUser } from './src/services/userService';
-import COLORS from './src/constants/colors';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 
 // Components
 import TopBar from './src/components/TopBar';
@@ -15,6 +14,7 @@ import BottomTabBar from './src/components/BottomTabBar';
 // Screens
 import SplashScreen from './src/screens/SplashScreen';
 import LoginScreen from './src/screens/LoginScreen';
+import SignupScreen from './src/screens/SignupScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import HistoryDetailScreen from './src/screens/HistoryDetailScreen';
@@ -23,18 +23,20 @@ import SignToSpeechScreen from './src/screens/SignToSpeechScreen';
 import SpeechToSignScreen from './src/screens/SpeechToSignScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import SupportedWordsScreen from './src/screens/SupportedWordsScreen';
+import UpgradeScreen from './src/screens/UpgradeScreen';
 
 // =============================================
 // MAIN APP COMPONENT
 // =============================================
-export default function App() {
+function AppContent() {
+  const { colors } = useTheme();
   const [navigationStack, setNavigationStack] = useState(['Splash']);
   const [user, setUser] = useState(null);
   const [activeHistoryItem, setActiveHistoryItem] = useState(null);
   const currentScreen = navigationStack[navigationStack.length - 1];
 
   let [fontsLoaded] = useFonts({
-    Orbitron_700Bold,
     DMSans_400Regular,
     DMSans_500Medium,
     DMSans_700Bold,
@@ -74,7 +76,8 @@ export default function App() {
           syncCurrentUser().catch((error) => console.log('User sync error:', error.message));
           setNavigationStack((prev) => {
             const activeScreen = prev[prev.length - 1];
-            return activeScreen === 'Login' || activeScreen === 'Splash' ? ['Home'] : prev;
+            // The splash must remain visible for the full video duration.
+            return activeScreen === 'Login' || activeScreen === 'SignUp' ? ['Home'] : prev;
           });
         } else {
           setUser(null);
@@ -85,11 +88,11 @@ export default function App() {
     }
   }, []);
 
-  // 2. SPLASH TIMER
+  // 2. SPLASH TIMER — wait 2.5 seconds before moving on.
   useEffect(() => {
     if (currentScreen === 'Splash') {
       const timer = setTimeout(() => {
-        if (!user) {
+        if (!auth?.currentUser) {
           resetNavigation('Login');
         } else {
           resetNavigation('Home');
@@ -97,7 +100,7 @@ export default function App() {
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [currentScreen, resetNavigation, user]);
+  }, [currentScreen, resetNavigation]);
 
   // 3. ANDROID HARDWARE BACK HANDLER
   useEffect(() => {
@@ -113,8 +116,8 @@ export default function App() {
     return () => subscription.remove();
   }, [currentScreen, goBack]);
 
-  const tabScreens = ['Home', 'History', 'Conversation', 'Settings'];
-  const authScreens = ['Splash', 'Login', 'HistoryDetail']; 
+  const tabScreens = ['Home', 'History', 'Conversation', 'Upgrade', 'Settings'];
+  const authScreens = ['Splash', 'Login', 'SignUp', 'HistoryDetail'];
   const showTopBar = !authScreens.includes(currentScreen);
   const showBottomBar = tabScreens.includes(currentScreen);
 
@@ -122,6 +125,7 @@ export default function App() {
     switch (currentScreen) {
       case 'Splash': return <SplashScreen />;
       case 'Login': return <LoginScreen navigate={navigate} />;
+      case 'SignUp': return <SignupScreen navigate={navigate} />;
       case 'Home': return <HomeScreen navigate={navigate} />;
       
       case 'History': return <HistoryScreen navigate={navigate} />;
@@ -132,6 +136,8 @@ export default function App() {
       case 'SignToSpeech': return <SignToSpeechScreen navigate={navigate} />;
       case 'Settings': return <SettingsScreen navigate={navigate} />;
       case 'Profile': return <ProfileScreen navigate={navigate} />;
+      case 'SupportedWords': return <SupportedWordsScreen />;
+      case 'Upgrade': return <UpgradeScreen />;
       default: return <HomeScreen navigate={navigate} />;
     }
   };
@@ -142,8 +148,8 @@ export default function App() {
 
   return (
     <ChatProvider>
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={COLORS.bgDark} />
+      <View style={[styles.container, { backgroundColor: colors.bgDark }]}>
+        <StatusBar barStyle={colors.bgDark === '#FFFFFF' ? 'dark-content' : 'light-content'} backgroundColor={colors.bgDark} />
         {showTopBar && (
           <TopBar
             screen={currentScreen}
@@ -161,6 +167,14 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bgDark },
+  container: { flex: 1 },
   screenContainer: { flex: 1 },
 });
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}

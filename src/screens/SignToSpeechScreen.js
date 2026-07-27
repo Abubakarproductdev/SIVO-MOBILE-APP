@@ -21,13 +21,15 @@ import {
   Smartphone,
 } from 'lucide-react-native';
 import { useChat } from '../../ChatContext';
-import COLORS from '../constants/colors';
 import { SPACING, RADIUS, TYPOGRAPHY, SHADOWS } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 // =============================================
 // SIGN TO SPEECH SCREEN (DEEP SPACE)
 // =============================================
 function SignToSpeechScreen({ navigate }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [status, setStatus] = useState('calibration-1');
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [cameraRef, setCameraRef] = useState(null);
@@ -167,7 +169,7 @@ function SignToSpeechScreen({ navigate }) {
     return (
       <View style={styles.loadingContainer}>
         <View style={styles.loadingGlow} />
-        <ActivityIndicator size="large" color={COLORS.primaryEnd} />
+        <ActivityIndicator size="large" color={colors.primaryEnd} />
         <Text style={styles.loadingText}>Processing...</Text>
       </View>
     );
@@ -179,7 +181,7 @@ function SignToSpeechScreen({ navigate }) {
         <Text style={styles.permissionText}>Permissions needed.</Text>
         <TouchableOpacity onPress={requestCameraPermission}>
           <LinearGradient
-            colors={[COLORS.primary, COLORS.primaryEnd]}
+            colors={[colors.primary, colors.primaryEnd]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.permissionButton}
@@ -201,7 +203,7 @@ function SignToSpeechScreen({ navigate }) {
       return (
         <View style={styles.calibrationOverlay}>
           <Animated.View style={{ transform: [{ rotate: spin }] }}>
-            <Smartphone color={COLORS.primaryEnd} size={180} strokeWidth={1} />
+            <Smartphone color={colors.primaryEnd} size={180} strokeWidth={1} />
           </Animated.View>
         </View>
       );
@@ -228,12 +230,12 @@ function SignToSpeechScreen({ navigate }) {
         <View style={styles.controls}>
           <TouchableOpacity onPress={startRecording} style={styles.controlButtonWrapper}>
             <LinearGradient
-              colors={[COLORS.primary, COLORS.primaryEnd]}
+              colors={[colors.primary, colors.primaryEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.controlButton}
             >
-              <Video color="#FFF" size={20} />
+              <Video color={colors.onPrimary} size={20} />
               <Text style={styles.controlButtonText}>Record Sign</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -244,12 +246,12 @@ function SignToSpeechScreen({ navigate }) {
         <View style={styles.controls}>
           <TouchableOpacity onPress={stopRecording} style={styles.controlButtonWrapper}>
             <LinearGradient
-              colors={[COLORS.error, '#ff6b6b']}
+              colors={[colors.error, colors.error]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.controlButton}
             >
-              <Square color="#FFF" size={24} />
+              <Square color={colors.onPrimary} size={24} />
               <Text style={styles.controlButtonText}>Stop</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -259,40 +261,40 @@ function SignToSpeechScreen({ navigate }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bgDark },
-  loadingContainer: { flex: 1, backgroundColor: COLORS.bgDark, justifyContent: 'center', alignItems: 'center' },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bgDark },
+  loadingContainer: { flex: 1, backgroundColor: colors.bgDark, justifyContent: 'center', alignItems: 'center' },
   loadingGlow: {
     position: 'absolute', width: 200, height: 200, borderRadius: 100,
-    backgroundColor: COLORS.primary, opacity: 0.1,
+    backgroundColor: colors.primary, opacity: 0.1,
   },
-  loadingText: { fontFamily: TYPOGRAPHY.fontFamily.body, color: COLORS.textSecondary, marginTop: SPACING.xl },
-  permissionContainer: { flex: 1, backgroundColor: COLORS.bgDark, justifyContent: 'center', alignItems: 'center', padding: SPACING.xl },
-  permissionText: { fontFamily: TYPOGRAPHY.fontFamily.body, color: '#FFF', marginBottom: SPACING.xl, textAlign: 'center', fontSize: 16 },
+  loadingText: { fontFamily: TYPOGRAPHY.fontFamily.body, color: colors.textSecondary, marginTop: SPACING.xl },
+  permissionContainer: { flex: 1, backgroundColor: colors.bgDark, justifyContent: 'center', alignItems: 'center', padding: SPACING.xl },
+  permissionText: { fontFamily: TYPOGRAPHY.fontFamily.body, color: colors.textPrimary, marginBottom: SPACING.xl, textAlign: 'center', fontSize: 16 },
   permissionButton: { padding: SPACING.lg, borderRadius: RADIUS.lg, paddingHorizontal: SPACING.xxxl },
-  permissionButtonText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: '#FFF', fontSize: 15 },
+  permissionButtonText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: colors.onPrimary, fontSize: 15 },
   cameraWrapper: {
     flex: 1,
     margin: SPACING.xl,
     borderRadius: RADIUS.xxl,
     overflow: 'hidden',
-    backgroundColor: '#000',
+    backgroundColor: colors.bgElevated,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.primary,
   },
   recBadge: {
     position: 'absolute',
     top: 20,
     right: 20,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: colors.overlay,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: RADIUS.xxl,
     borderWidth: 1,
-    borderColor: 'rgba(244,63,94,0.3)',
+    borderColor: colors.error,
   },
-  recText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: COLORS.error, fontSize: 12 },
-  controls: { height: 120, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.bgDark },
+  recText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: colors.error, fontSize: 12 },
+  controls: { height: 120, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bgDark },
   controlButtonWrapper: { ...SHADOWS.glowPrimary, borderRadius: RADIUS.round },
   controlButton: {
     flexDirection: 'row',
@@ -301,10 +303,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     borderRadius: RADIUS.round,
   },
-  controlButtonText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: '#FFF', marginLeft: 10, fontSize: 15 },
+  controlButtonText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: colors.onPrimary, marginLeft: 10, fontSize: 15 },
   calibrationOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: SPACING.xxl,
@@ -312,15 +314,15 @@ const styles = StyleSheet.create({
   },
   calibrationContent: {
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.bgCard,
     padding: SPACING.xxxl,
     borderRadius: RADIUS.xxl,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: colors.borderLight,
   },
   calibrationTitle: {
     fontFamily: TYPOGRAPHY.fontFamily.heading,
-    color: '#FFF',
+    color: colors.textPrimary,
     fontSize: 22,
     marginTop: SPACING.xxxl,
     marginBottom: SPACING.md,
@@ -328,7 +330,7 @@ const styles = StyleSheet.create({
   },
   calibrationSubtitle: {
     fontFamily: TYPOGRAPHY.fontFamily.body,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 22,
@@ -342,17 +344,17 @@ const styles = StyleSheet.create({
   countdownText: {
     fontFamily: TYPOGRAPHY.fontFamily.heading,
     fontSize: 120,
-    color: '#FFF',
-    textShadowColor: COLORS.primaryEnd,
+    color: colors.textPrimary,
+    textShadowColor: colors.primaryEnd,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 30,
   },
   countdownSubtitle: {
     fontFamily: TYPOGRAPHY.fontFamily.bodyBold,
-    color: '#FFF',
+    color: colors.textPrimary,
     fontSize: 18,
     textAlign: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: colors.overlay,
     padding: 10,
     borderRadius: 8,
     marginTop: 20,

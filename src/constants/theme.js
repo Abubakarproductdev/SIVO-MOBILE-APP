@@ -1,5 +1,5 @@
 // =============================================
-// THEME CONSTANTS (DEEP SPACE)
+// SIVO — Design Tokens (Dark + Crimson)
 // =============================================
 
 export const SPACING = {
@@ -24,8 +24,8 @@ export const RADIUS = {
 
 export const TYPOGRAPHY = {
   fontFamily: {
-    heading: 'Orbitron_700Bold', // distinctive, futuristic display font
-    body: 'DMSans_400Regular', // body font
+    heading: 'DMSans_700Bold',
+    body: 'DMSans_400Regular',
     bodyMedium: 'DMSans_500Medium',
     bodyBold: 'DMSans_700Bold',
   },
@@ -53,24 +53,31 @@ export const TYPOGRAPHY = {
 
 export const SHADOWS = {
   glowPrimary: {
-    shadowColor: '#7c3aed',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 15,
+    shadowColor: '#CD2019',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
     elevation: 8,
   },
   glowAccent: {
-    shadowColor: '#f43f5e',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 15,
-    elevation: 8,
+    shadowColor: '#E63946',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6,
   },
   glass: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  card: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
   },
 };

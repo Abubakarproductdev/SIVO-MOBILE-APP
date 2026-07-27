@@ -6,77 +6,103 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import {
   Video,
   Mic,
   MessageSquare,
   History,
   ArrowRight,
+  ArrowUpRight,
 } from 'lucide-react-native';
-import COLORS from '../constants/colors';
 import { SPACING, RADIUS, TYPOGRAPHY, SHADOWS } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
-// =============================================
-// HOME SCREEN (DEEP SPACE)
-// =============================================
 function HomeScreen({ navigate }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
     <View style={styles.homeContainer}>
-      {/* Ambient background glows */}
-      <View style={styles.ambientGlowPrimary} />
-      <View style={styles.ambientGlowAccent} />
-
       <ScrollView
         contentContainerStyle={styles.homeContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.homeWelcome}>Hello!</Text>
-        <Text style={styles.homeSubtitle}>
-          Bridge communication gaps with real-time sign language translation
-        </Text>
+        {/* Hero Section */}
+        <View style={styles.heroContainer}>
+          <Image 
+            source={require('../../assets/images/home_hero.jpg')}
+            style={styles.heroImage}
+          />
+          <LinearGradient
+            colors={[`${colors.bgDark}00`, colors.bgDark]}
+            style={styles.heroGradient}
+          />
+          <View style={styles.heroOverlay}>
+            <Text style={styles.homeWelcome}>Hello!</Text>
+            <Text style={styles.homeSubtitle}>
+              Bridge communication gaps with real-time sign language translation
+            </Text>
+          </View>
+        </View>
 
+        {/* Stats Section */}
+        <View style={styles.statsContainer}>
+          <TouchableOpacity
+            style={[styles.statCard, styles.statCardPrimary]}
+            onPress={() => navigate('SupportedWords')}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="View supported words"
+          >
+            <View style={styles.statHeader}>
+              <ArrowUpRight size={20} color={colors.onPrimary} />
+            </View>
+            <Text style={[styles.statValue, styles.statValuePrimary]}>41</Text>
+            <Text style={[styles.statLabel, styles.statLabelPrimary]}>Words Supported</Text>
+          </TouchableOpacity>
+          <View style={styles.statCard}>
+            <View style={styles.statHeader}>
+              <ArrowUpRight size={20} color={colors.accent} />
+            </View>
+            <Text style={styles.statValue}>80%</Text>
+            <Text style={styles.statLabel}>Accuracy Rate</Text>
+          </View>
+        </View>
+
+        {/* Features Grid */}
         <View style={styles.featureGrid}>
           <TouchableOpacity
-            style={styles.featureCardContainer}
+            style={styles.featureCard}
             onPress={() => navigate('SignToSpeech')}
             activeOpacity={0.8}
           >
-            <LinearGradient
-              colors={[COLORS.accent, COLORS.accentEnd]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.featureCard}
-            >
+            <View style={styles.featureIconContainer}>
               <View style={styles.featureIconBg}>
-                <Video size={28} color={COLORS.accent} />
+                <Video size={24} color={colors.accent} />
               </View>
-              <Text style={styles.featureTitle}>Sign → Speech</Text>
-              <Text style={styles.featureSubtitle}>Camera translation</Text>
-            </LinearGradient>
+              <ArrowRight size={20} color={colors.textSecondary} />
+            </View>
+            <Text style={styles.featureTitle}>Sign → Speech</Text>
+            <Text style={styles.featureSubtitle}>Camera translation</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.featureCardContainer}
+            style={styles.featureCard}
             onPress={() => navigate('SpeechToSign')}
             activeOpacity={0.8}
           >
-            <LinearGradient
-              colors={[COLORS.primary, COLORS.primaryEnd]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.featureCard}
-            >
+            <View style={styles.featureIconContainer}>
               <View style={styles.featureIconBg}>
-                <Mic size={28} color={COLORS.primary} />
+                <Mic size={24} color={colors.accent} />
               </View>
-              <Text style={styles.featureTitle}>Speech → Sign</Text>
-              <Text style={styles.featureSubtitle}>Voice translation</Text>
-            </LinearGradient>
+              <ArrowRight size={20} color={colors.textSecondary} />
+            </View>
+            <Text style={styles.featureTitle}>Speech → Sign</Text>
+            <Text style={styles.featureSubtitle}>Voice translation</Text>
           </TouchableOpacity>
         </View>
 
@@ -85,85 +111,171 @@ function HomeScreen({ navigate }) {
         <TouchableOpacity
           onPress={() => navigate('Conversation')}
           activeOpacity={0.8}
+          style={styles.quickActionCard}
         >
-          <BlurView intensity={20} tint="dark" style={styles.quickActionCard}>
-            <LinearGradient 
-              colors={[COLORS.coral, COLORS.accentEnd]} 
-              start={{x: 0, y: 0}} end={{x: 1, y: 1}} 
-              style={styles.quickActionIcon}
-            >
-              <MessageSquare size={22} color="#FFF" />
-            </LinearGradient>
-            <View style={styles.quickActionText}>
-              <Text style={styles.quickActionTitle}>Live Conversation</Text>
-              <Text style={styles.quickActionSubtitle}>Start real-time chat</Text>
-            </View>
-            <ArrowRight size={20} color={COLORS.textMuted} />
-          </BlurView>
+          <LinearGradient 
+            colors={[colors.accent, colors.accentEnd]} 
+            start={{x: 0, y: 0}} end={{x: 1, y: 1}} 
+            style={styles.quickActionIcon}
+          >
+            <MessageSquare size={22} color={colors.onPrimary} />
+          </LinearGradient>
+          <View style={styles.quickActionText}>
+            <Text style={styles.quickActionTitle}>Live Conversation</Text>
+            <Text style={styles.quickActionSubtitle}>Start real-time chat</Text>
+          </View>
+          <ArrowRight size={20} color={colors.textMuted} />
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => navigate('History')}
           activeOpacity={0.8}
+          style={styles.quickActionCard}
         >
-          <BlurView intensity={20} tint="dark" style={styles.quickActionCard}>
-            <LinearGradient 
-              colors={[COLORS.violet, COLORS.primaryEnd]} 
-              start={{x: 0, y: 0}} end={{x: 1, y: 1}} 
-              style={styles.quickActionIcon}
-            >
-              <History size={22} color="#FFF" />
-            </LinearGradient>
-            <View style={styles.quickActionText}>
-              <Text style={styles.quickActionTitle}>View History</Text>
-              <Text style={styles.quickActionSubtitle}>Past translations</Text>
-            </View>
-            <ArrowRight size={20} color={COLORS.textMuted} />
-          </BlurView>
+          <LinearGradient 
+            colors={[colors.accent, colors.accentEnd]} 
+            start={{x: 0, y: 0}} end={{x: 1, y: 1}} 
+            style={styles.quickActionIcon}
+          >
+            <History size={22} color={colors.onPrimary} />
+          </LinearGradient>
+          <View style={styles.quickActionText}>
+            <Text style={styles.quickActionTitle}>View History</Text>
+            <Text style={styles.quickActionSubtitle}>Past translations</Text>
+          </View>
+          <ArrowRight size={20} color={colors.textMuted} />
         </TouchableOpacity>
       </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  homeContainer: { flex: 1, backgroundColor: COLORS.bgDark },
-  ambientGlowPrimary: {
-    position: 'absolute', top: -100, right: -50, width: 250, height: 250,
-    borderRadius: 125, backgroundColor: COLORS.primary, opacity: 0.15, transform: [{ scale: 1.5 }],
+const createStyles = (colors) => StyleSheet.create({
+  homeContainer: { flex: 1, backgroundColor: colors.bgDark },
+  homeContent: { paddingBottom: SPACING.xxxl },
+  heroContainer: {
+    height: 250,
+    width: '100%',
+    position: 'relative',
+    marginBottom: SPACING.lg,
   },
-  ambientGlowAccent: {
-    position: 'absolute', top: 300, left: -100, width: 200, height: 200,
-    borderRadius: 100, backgroundColor: COLORS.accent, opacity: 0.1, transform: [{ scale: 1.5 }],
+  heroImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
-  homeContent: { padding: SPACING.xl, paddingBottom: SPACING.xxxl },
+  heroGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '60%',
+  },
+  heroOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: SPACING.xl,
+  },
   homeWelcome: { 
     fontFamily: TYPOGRAPHY.fontFamily.heading,
-    fontSize: TYPOGRAPHY.size.xl, 
-    color: '#FFF', 
+    fontSize: 28, 
+    color: colors.textPrimary, 
     marginBottom: 8,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   homeSubtitle: { 
     fontFamily: TYPOGRAPHY.fontFamily.body,
-    fontSize: TYPOGRAPHY.size.body, 
-    color: COLORS.textSecondary, 
-    lineHeight: 24, 
-    marginBottom: SPACING.xxxl 
+    fontSize: 14, 
+    color: colors.textSecondary, 
+    lineHeight: 20, 
   },
-  featureGrid: { flexDirection: 'row', gap: SPACING.lg, marginBottom: SPACING.xxxl },
-  featureCardContainer: { flex: 1, ...SHADOWS.glowPrimary },
-  featureCard: { flex: 1, borderRadius: RADIUS.xxl, padding: SPACING.xl, aspectRatio: 1, justifyContent: 'center', alignItems: 'center' },
-  featureIconBg: { width: 56, height: 56, borderRadius: RADIUS.xl, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', marginBottom: SPACING.lg },
-  featureTitle: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, fontSize: TYPOGRAPHY.size.body, color: '#FFF', marginBottom: 4 },
-  featureSubtitle: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.small, color: 'rgba(255,255,255,0.75)' },
-  sectionTitle: { fontFamily: TYPOGRAPHY.fontFamily.heading, fontSize: TYPOGRAPHY.size.header, color: '#FFF', marginBottom: SPACING.lg, letterSpacing: 1 },
-  quickActionCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.bgCard, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.borderLight, padding: SPACING.lg, marginBottom: SPACING.md, overflow: 'hidden' },
-  quickActionIcon: { width: 48, height: 48, borderRadius: RADIUS.lg, justifyContent: 'center', alignItems: 'center' },
+  statsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: SPACING.xl,
+    gap: SPACING.lg,
+    marginBottom: SPACING.xxxl,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.statCardBg,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+  },
+  statCardPrimary: {
+    backgroundColor: colors.primary,
+  },
+  statHeader: {
+    marginBottom: SPACING.sm,
+  },
+  statValue: {
+    fontFamily: TYPOGRAPHY.fontFamily.heading,
+    fontSize: 24,
+    color: colors.statCardText,
+    marginBottom: 4,
+  },
+  statValuePrimary: {
+    color: colors.onPrimary,
+  },
+  statLabel: {
+    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  statLabelPrimary: {
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  featureGrid: { 
+    flexDirection: 'row', 
+    gap: SPACING.lg, 
+    marginBottom: SPACING.xxxl,
+    paddingHorizontal: SPACING.xl,
+  },
+  featureCard: { 
+    flex: 1, 
+    backgroundColor: colors.bgCard,
+    borderRadius: RADIUS.xl, 
+    padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  featureIconContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.xl,
+  },
+  featureIconBg: { 
+    width: 48, 
+    height: 48, 
+    borderRadius: RADIUS.round, 
+    backgroundColor: colors.primaryLight, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+  },
+  featureTitle: { fontFamily: TYPOGRAPHY.fontFamily.heading, fontSize: 16, color: colors.textPrimary, marginBottom: 4 },
+  featureSubtitle: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: 12, color: colors.textSecondary },
+  sectionTitle: { 
+    fontFamily: TYPOGRAPHY.fontFamily.heading, 
+    fontSize: 18, 
+    color: colors.textPrimary, 
+    marginBottom: SPACING.lg,
+    paddingHorizontal: SPACING.xl,
+  },
+  quickActionCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: colors.bgCard, 
+    borderRadius: RADIUS.lg, 
+    padding: SPACING.lg, 
+    marginBottom: SPACING.md,
+    marginHorizontal: SPACING.xl,
+  },
+  quickActionIcon: { width: 48, height: 48, borderRadius: RADIUS.md, justifyContent: 'center', alignItems: 'center' },
   quickActionText: { flex: 1, marginLeft: SPACING.lg },
-  quickActionTitle: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, fontSize: TYPOGRAPHY.size.body, color: '#FFF', marginBottom: 2 },
-  quickActionSubtitle: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.caption, color: COLORS.textMuted },
+  quickActionTitle: { fontFamily: TYPOGRAPHY.fontFamily.heading, fontSize: 16, color: colors.textPrimary, marginBottom: 4 },
+  quickActionSubtitle: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: 12, color: colors.textMuted },
 });
 
 export default HomeScreen;
-

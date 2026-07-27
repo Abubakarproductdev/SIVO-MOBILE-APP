@@ -10,14 +10,13 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useChat } from '../../ChatContext';
-import COLORS from '../constants/colors';
 import { SPACING, RADIUS, TYPOGRAPHY } from '../constants/theme';
 import Card from '../components/Card';
+import { useTheme } from '../context/ThemeContext';
 
-// =============================================
-// HISTORY SCREEN (DEEP SPACE)
-// =============================================
-function HistoryScreen({ navigate }) {
+export default function HistoryScreen({ navigate }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const { history, historyLoading, loadHistory } = useChat();
 
   useEffect(() => {
@@ -33,16 +32,13 @@ function HistoryScreen({ navigate }) {
 
   return (
     <View style={styles.historyBg}>
-      {/* Ambient glow */}
-      <View style={styles.glow} />
-
       <ScrollView
         style={styles.historyContainer}
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
         {historyLoading ? (
-          <ActivityIndicator size="large" color={COLORS.primaryEnd} style={{ marginTop: 80 }} />
+          <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 80 }} />
         ) : history.length === 0 ? (
           <View style={{ marginTop: 80, alignItems: 'center' }}>
             <Text style={styles.emptyText}>No saved conversations yet.</Text>
@@ -58,7 +54,7 @@ function HistoryScreen({ navigate }) {
               <Card style={styles.historyCard}>
                 <View style={styles.historyHeader}>
                   <LinearGradient
-                    colors={[COLORS.primary, COLORS.primaryEnd]}
+                    colors={[colors.primary, colors.primaryEnd]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={styles.historyTag}
@@ -82,22 +78,16 @@ function HistoryScreen({ navigate }) {
   );
 }
 
-const styles = StyleSheet.create({
-  historyBg: { flex: 1, backgroundColor: COLORS.bgDark },
-  glow: {
-    position: 'absolute', top: -60, right: -60, width: 220, height: 220,
-    borderRadius: 110, backgroundColor: COLORS.primary, opacity: 0.1,
-  },
+const createStyles = (colors) => StyleSheet.create({
+  historyBg: { flex: 1, backgroundColor: colors.bgDark },
   historyContainer: { flex: 1, padding: SPACING.xl },
-  emptyText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: COLORS.textSecondary, fontSize: 17, marginBottom: 8 },
-  emptySubtext: { fontFamily: TYPOGRAPHY.fontFamily.body, color: COLORS.textMuted, fontSize: 14 },
+  emptyText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, color: colors.textSecondary, fontSize: 17, marginBottom: 8 },
+  emptySubtext: { fontFamily: TYPOGRAPHY.fontFamily.body, color: colors.textMuted, fontSize: 14 },
   historyCard: { marginBottom: 14 },
   historyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md },
   historyTag: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: RADIUS.xxl },
-  historyTagText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, fontSize: TYPOGRAPHY.size.small, color: '#FFF', letterSpacing: 0.5 },
-  historyTime: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.small, color: COLORS.textMuted },
-  historyText: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.body, color: COLORS.textSecondary, lineHeight: 22, marginBottom: 14 },
-  viewLink: { fontFamily: TYPOGRAPHY.fontFamily.bodyMedium, fontSize: 12, color: COLORS.primaryEnd },
+  historyTagText: { fontFamily: TYPOGRAPHY.fontFamily.bodyBold, fontSize: TYPOGRAPHY.size.small, color: colors.onPrimary, letterSpacing: 0.5 },
+  historyTime: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.small, color: colors.textMuted },
+  historyText: { fontFamily: TYPOGRAPHY.fontFamily.body, fontSize: TYPOGRAPHY.size.body, color: colors.textSecondary, lineHeight: 22, marginBottom: 14 },
+  viewLink: { fontFamily: TYPOGRAPHY.fontFamily.bodyMedium, fontSize: 12, color: colors.primary },
 });
-
-export default HistoryScreen;

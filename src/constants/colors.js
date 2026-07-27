@@ -1,32 +1,44 @@
 // =============================================
-// DEEP SPACE COLOR PALETTE
+// SIVO — Dark + Crimson Design System
 // =============================================
 const COLORS = {
-  bgDark: '#0A0A1A', // Deep space background (near-black deep navy)
-  bgCard: 'rgba(255, 255, 255, 0.03)', // Base for glassmorphism
-  bgElevated: 'rgba(255, 255, 255, 0.05)', // Slightly raised glass
-  bgInput: 'rgba(255, 255, 255, 0.08)',
-  
-  // Gradients will use array of colors or we define start/end
-  primary: '#7c3aed', // Primary gradient start (violet)
-  primaryEnd: '#06b6d4', // Primary gradient end (cyan)
-  
-  accent: '#f43f5e', // Accent gradient start (rose)
-  accentEnd: '#fb923c', // Accent gradient end (orange)
-  
-  coral: '#f43f5e', // Mapped to the new accent start
-  violet: '#7c3aed', // Mapped to primary start
-  
+  // Backgrounds
+  bgDark: '#0D0D0D',
+  bgCard: '#1A1A1A',
+  bgElevated: '#222222',
+  bgInput: '#1A1A1A',
+
+  // Primary (Crimson Red)
+  primary: '#CD2019',
+  primaryEnd: '#CD2019',
+  primaryLight: 'rgba(205, 32, 25, 0.15)',
+  primaryMuted: 'rgba(205, 32, 25, 0.08)',
+
+  // Accent
+  accent: '#CD2019',
+  accentEnd: '#CD2019',
+
+  // Coral / Violet kept for compatibility
+  coral: '#CD2019',
+  violet: '#CD2019',
+
+  // Text
   textPrimary: '#FFFFFF',
-  textSecondary: '#E2E8F0', // Light gray
-  textMuted: '#94A3B8', // Medium gray
-  
-  border: 'rgba(255, 255, 255, 0.1)',
-  borderLight: 'rgba(255, 255, 255, 0.15)',
-  
-  success: '#22D3EE', // Cyan-ish for success
-  error: '#f43f5e',
-  warning: '#fb923c',
+  textSecondary: '#A0A0A0',
+  textMuted: '#666666',
+
+  // Borders
+  border: 'rgba(255, 255, 255, 0.06)',
+  borderLight: 'rgba(255, 255, 255, 0.10)',
+
+  // Status
+  success: '#34C759',
+  error: '#CD2019',
+  warning: '#FF9500',
+
+  // Stat Cards
+  statCardBg: '#FFFFFF',
+  statCardText: '#1A1A1A',
 };
 
 export default COLORS;

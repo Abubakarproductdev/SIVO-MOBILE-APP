@@ -11,18 +11,20 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, Mail, Save, User } from 'lucide-react-native';
 import { auth } from '../config/firebase';
-import COLORS from '../constants/colors';
 import { RADIUS, SPACING, TYPOGRAPHY } from '../constants/theme';
 import ActionButton from '../components/ActionButton';
 import Card from '../components/Card';
 import { getCurrentUserProfile, updateCurrentUserProfile } from '../services/userService';
+import { useTheme } from '../context/ThemeContext';
 
 function formatDate(value) {
   if (!value) return 'Not available';
   return new Date(value).toLocaleDateString();
 }
 
-function ProfileScreen() {
+export default function ProfileScreen() {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [profile, setProfile] = useState(null);
   const [displayName, setDisplayName] = useState('');
   const [phone, setPhone] = useState('');
@@ -73,7 +75,7 @@ function ProfileScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primaryEnd} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -84,16 +86,14 @@ function ProfileScreen() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.glowPrimary} />
-
       <View style={styles.headerBlock}>
         <LinearGradient
-          colors={[COLORS.primary, COLORS.primaryEnd]}
+          colors={[colors.primary, colors.primaryEnd]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.avatar}
         >
-          <User size={34} color="#FFF" />
+          <User size={34} color={colors.onPrimary} />
         </LinearGradient>
         <Text style={styles.nameText}>
           {profile?.displayName || auth?.currentUser?.email || 'SIVO User'}
@@ -109,7 +109,7 @@ function ProfileScreen() {
             onChangeText={setDisplayName}
             style={styles.textInput}
             placeholder="Enter your name"
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textMuted}
           />
         </View>
 
@@ -121,12 +121,12 @@ function ProfileScreen() {
             style={styles.textInput}
             keyboardType="phone-pad"
             placeholder="Optional"
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textMuted}
           />
         </View>
 
         <View style={styles.infoRow}>
-          <Mail size={18} color={COLORS.primaryEnd} />
+          <Mail size={18} color={colors.primary} />
           <View style={styles.infoTextBlock}>
             <Text style={styles.infoLabel}>Email</Text>
             <Text style={styles.infoValue}>{profile?.email || 'Not available'}</Text>
@@ -134,7 +134,7 @@ function ProfileScreen() {
         </View>
 
         <View style={styles.infoRow}>
-          <Calendar size={18} color={COLORS.accentEnd} />
+          <Calendar size={18} color={colors.primary} />
           <View style={styles.infoTextBlock}>
             <Text style={styles.infoLabel}>Member Since</Text>
             <Text style={styles.infoValue}>{formatDate(profile?.createdAt)}</Text>
@@ -147,30 +147,20 @@ function ProfileScreen() {
         IconComponent={Save}
         onPress={handleSave}
         loading={saving}
-        bgColor={COLORS.primary}
+        bgColor={colors.primary}
       />
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bgDark },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bgDark },
   content: { padding: SPACING.xl, paddingBottom: SPACING.xxxl },
   loadingContainer: {
     flex: 1,
-    backgroundColor: COLORS.bgDark,
+    backgroundColor: colors.bgDark,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  glowPrimary: {
-    position: 'absolute',
-    top: 40,
-    right: -80,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: COLORS.primary,
-    opacity: 0.1,
   },
   headerBlock: { alignItems: 'center', marginBottom: SPACING.xxl },
   avatar: {
@@ -183,14 +173,14 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontFamily: TYPOGRAPHY.fontFamily.heading,
-    color: COLORS.textPrimary,
+    color: colors.textPrimary,
     fontSize: TYPOGRAPHY.size.title,
     textAlign: 'center',
     letterSpacing: 1,
   },
   emailText: {
     fontFamily: TYPOGRAPHY.fontFamily.body,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontSize: TYPOGRAPHY.size.body,
     marginTop: 6,
   },
@@ -198,17 +188,17 @@ const styles = StyleSheet.create({
   inputGroup: { marginBottom: SPACING.xl },
   inputLabel: {
     fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: TYPOGRAPHY.size.small,
     marginBottom: 8,
     textTransform: 'uppercase',
   },
   textInput: {
-    backgroundColor: COLORS.bgInput,
+    backgroundColor: colors.bgInput,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    color: COLORS.textPrimary,
+    borderColor: colors.border,
+    color: colors.textPrimary,
     fontFamily: TYPOGRAPHY.fontFamily.body,
     fontSize: TYPOGRAPHY.size.subtitle,
     paddingHorizontal: 16,
@@ -219,21 +209,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: SPACING.lg,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
     marginTop: SPACING.md,
   },
   infoTextBlock: { marginLeft: SPACING.md, flex: 1 },
   infoLabel: {
     fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontSize: TYPOGRAPHY.size.small,
     marginBottom: 2,
   },
   infoValue: {
     fontFamily: TYPOGRAPHY.fontFamily.body,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontSize: TYPOGRAPHY.size.body,
   },
 });
-
-export default ProfileScreen;

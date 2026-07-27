@@ -1,28 +1,28 @@
 import React from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { View, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
 import {
   Home,
   MessageSquare,
   History,
   Settings,
+  Crown,
 } from 'lucide-react-native';
-import COLORS from '../constants/colors';
-import { RADIUS, TYPOGRAPHY, SPACING } from '../constants/theme';
+import { SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
-// =============================================
-// BOTTOM TAB BAR (GLASS)
-// =============================================
 function BottomTabBar({ currentScreen, navigate }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const tabs = [
     { name: 'Home', icon: Home, screen: 'Home' },
     { name: 'Chat', icon: MessageSquare, screen: 'Conversation' },
     { name: 'History', icon: History, screen: 'History' },
+    { name: 'Upgrade', icon: Crown, screen: 'Upgrade' },
     { name: 'Settings', icon: Settings, screen: 'Settings' },
   ];
 
   return (
-    <BlurView intensity={40} tint="dark" style={styles.tabBarWrapper}>
+    <View style={styles.tabBarWrapper}>
       <SafeAreaView>
         <View style={styles.tabBar}>
           {tabs.map((tab) => {
@@ -34,57 +34,45 @@ function BottomTabBar({ currentScreen, navigate }) {
                 style={styles.tabItem}
                 activeOpacity={0.7}
               >
-                <View
-                  style={[
-                    styles.tabIconWrapper,
-                    isActive && styles.tabIconActive,
-                  ]}
-                >
+                <View style={styles.tabIconWrapper}>
                   <tab.icon
-                    size={22}
-                    color={isActive ? COLORS.success : COLORS.textMuted} // Success is Cyan, looks great for active
+                    size={24}
+                    color={isActive ? colors.primary : colors.textMuted}
                   />
                 </View>
-                <Text
-                  style={[
-                    styles.tabLabel,
-                    { color: isActive ? COLORS.success : COLORS.textMuted },
-                  ]}
-                >
-                  {tab.name}
-                </Text>
               </TouchableOpacity>
             );
           })}
         </View>
       </SafeAreaView>
-    </BlurView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   tabBarWrapper: { 
-    backgroundColor: 'rgba(10, 10, 26, 0.65)', 
+    backgroundColor: colors.bgDark, 
     borderTopWidth: 1, 
-    borderTopColor: 'rgba(255,255,255,0.08)' 
+    borderTopColor: colors.border 
   },
   tabBar: {  
-    height: 80, 
+    height: 76, 
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent: 'space-around', 
-    paddingBottom: 25, 
-    paddingTop: 15 
+    paddingBottom: 19, 
+    paddingTop: 12 
   },
   tabItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: SPACING.sm },
-  tabIconWrapper: { width: 44, height: 36, justifyContent: 'center', alignItems: 'center', borderRadius: RADIUS.md },
-  tabIconActive: { backgroundColor: 'rgba(6, 182, 212, 0.15)' }, // Cyan low opacity
-  tabLabel: { 
-    fontFamily: TYPOGRAPHY.fontFamily.bodyMedium,
-    fontSize: TYPOGRAPHY.size.tiny, 
-    marginTop: 4 
-  },
+  tabIconWrapper: { alignItems: 'center', justifyContent: 'center' },
+  activeDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.primary,
+    position: 'absolute',
+    bottom: -10,
+  }
 });
 
 export default BottomTabBar;
-

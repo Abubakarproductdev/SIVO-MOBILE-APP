@@ -1,31 +1,27 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { BlurView } from 'expo-blur';
-import COLORS from '../constants/colors';
-import { RADIUS, SPACING } from '../constants/theme';
+import { SPACING } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
-// =============================================
-// CARD COMPONENT (GLASS)
-// =============================================
 function Card({ children, style }) {
-  // Use a fallback View if expo-blur isn't fully supported, but normally it is.
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   return (
-    <BlurView intensity={20} tint="dark" style={[styles.card, style]}>
+    <View style={[styles.card, style]}>
       {children}
-    </BlurView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   card: { 
-    backgroundColor: COLORS.bgCard, 
-    borderRadius: RADIUS.xl, 
+    backgroundColor: colors.bgCard, 
+    borderRadius: 20, 
     borderWidth: 1, 
-    borderColor: COLORS.border, 
+    borderColor: colors.border, 
     padding: SPACING.xl,
-    overflow: 'hidden', // to ensure blur respects border radius
+    overflow: 'hidden', 
   },
 });
 
 export default Card;
-

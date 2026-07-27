@@ -13,12 +13,14 @@ export async function apiRequest(path, options = {}) {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), options.timeoutMs || REQUEST_TIMEOUT_MS);
 
   let response;
 
   try {
-    const token = await currentUser.getIdToken(true);
+    // Do not force a token refresh for every request: forcing it can block
+    // history/settings when Firebase is briefly offline.
+    const token = await currentUser.getIdToken();
     response = await fetch(`${API_BASE_URL}${path}`, {
       method: options.method || 'GET',
       headers: {
