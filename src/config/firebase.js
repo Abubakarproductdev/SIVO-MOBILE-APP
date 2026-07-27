@@ -1,12 +1,14 @@
 // --- FIREBASE IMPORTS ---
 import { initializeApp } from 'firebase/app';
 import {
-  getAuth,
+  initializeAuth,
+  getReactNativePersistence,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
 } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   getFirestore,
   doc,
@@ -30,7 +32,9 @@ let auth;
 let db;
 try {
   const app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage)
+  });
   db = getFirestore(app);
 } catch (error) {
   console.log("Firebase initialization error:", error);

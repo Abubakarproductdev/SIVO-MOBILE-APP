@@ -23,6 +23,31 @@ const { width } = Dimensions.get('window');
 // =============================================
 // LOGIN SCREEN
 // =============================================
+// Helper functions for validation and errors
+const validateEmail = (email) => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+};
+
+const getFriendlyErrorMessage = (error) => {
+  const code = error.code || error.message;
+  if (code.includes('auth/invalid-credential') || code.includes('auth/user-not-found') || code.includes('auth/wrong-password')) {
+    return 'Incorrect email or password. Please try again.';
+  }
+  if (code.includes('auth/email-already-in-use')) {
+    return 'An account with this email address already exists.';
+  }
+  if (code.includes('auth/weak-password')) {
+    return 'Your password is too weak. Please use at least 6 characters.';
+  }
+  if (code.includes('auth/network-request-failed')) {
+    return 'Network error. Please check your internet connection.';
+  }
+  if (code.includes('auth/invalid-email')) {
+    return 'The email address is invalid.';
+  }
+  return error.message || 'An unknown error occurred. Please try again.';
+};
 function LoginScreen({ navigate }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +55,11 @@ function LoginScreen({ navigate }) {
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password.');
+      Alert.alert('Error', 'Please enter both your email and password.');
+      return;
+    }
+    if (!validateEmail(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
     setLoading(true);
@@ -38,7 +67,7 @@ function LoginScreen({ navigate }) {
       await signInWithEmailAndPassword(auth, email, password);
       await syncCurrentUser();
     } catch (error) {
-      Alert.alert('Login Failed', error.message);
+      Alert.alert('Login Failed', getFriendlyErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -46,16 +75,24 @@ function LoginScreen({ navigate }) {
 
   const handleSignUp = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password to sign up.');
+      Alert.alert('Error', 'Please enter an email and a password to sign up.');
+      return;
+    }
+    if (!validateEmail(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert('Weak Password', 'Your password must be at least 6 characters long.');
       return;
     }
     setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       await syncCurrentUser();
-      Alert.alert('Success', 'Account created!  Logging you in...');
+      Alert.alert('Success', 'Your account has been created successfully!');
     } catch (error) {
-      Alert.alert('Sign Up Failed', error.message);
+      Alert.alert('Sign Up Failed', getFriendlyErrorMessage(error));
     } finally {
       setLoading(false);
     }

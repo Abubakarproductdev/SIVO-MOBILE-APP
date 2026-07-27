@@ -1,27 +1,42 @@
-import { apiRequest } from './apiClient';
+import { auth, db, doc, setDoc, getDoc, updateDoc } from '../config/firebase';
 
 export async function syncCurrentUser(displayName) {
-  const payload = {};
+  const currentUser = auth?.currentUser;
+  if (!currentUser) throw new Error('User not authenticated');
+
+  const userRef = doc(db, 'users', currentUser.uid);
+  
+  const payload = {
+    uid: currentUser.uid,
+    email: currentUser.email,
+    lastLogin: new Date().toISOString(),
+  };
+
   if (displayName) payload.displayName = displayName;
 
-  const response = await apiRequest('/users/sync', {
-    method: 'POST',
-    body: payload,
-  });
-
-  return response.user;
+  await setDoc(userRef, payload, { merge: true });
+  return payload;
 }
 
 export async function getCurrentUserProfile() {
-  const response = await apiRequest('/users/me');
-  return response.user;
+  const currentUser = auth?.currentUser;
+  if (!currentUser) throw new Error('User not authenticated');
+
+  const userRef = doc(db, 'users', currentUser.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    return userSnap.data();
+  }
+  return null;
 }
 
 export async function updateCurrentUserProfile(updates) {
-  const response = await apiRequest('/users/me', {
-    method: 'PATCH',
-    body: updates,
-  });
+  const currentUser = auth?.currentUser;
+  if (!currentUser) throw new Error('User not authenticated');
 
-  return response.user;
+  const userRef = doc(db, 'users', currentUser.uid);
+  await updateDoc(userRef, updates);
+  
+  return updates;
 }
