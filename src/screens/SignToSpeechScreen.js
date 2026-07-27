@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Audio } from 'expo-av';
+import { Accelerometer } from 'expo-sensors';
+import Svg, { Path, Defs, Mask, Rect } from 'react-native-svg';
 import { uploadAsync, FileSystemUploadType, getInfoAsync } from 'expo-file-system/legacy';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -31,6 +33,7 @@ function SignToSpeechScreen({ navigate }) {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [cameraRef, setCameraRef] = useState(null);
   const [audioPermission, setAudioPermission] = useState(null);
+  const [countdown, setCountdown] = useState(3);
 
   const [rotationAnim] = useState(new Animated.Value(0));
   const [pulseAnim] = useState(new Animated.Value(1));
@@ -53,13 +56,49 @@ function SignToSpeechScreen({ navigate }) {
     })();
   }, []);
 
-  // Animations
+  // Automatic Rotation Detection
+  useEffect(() => {
+    let subscription = null;
+    if (status === 'calibration-1') {
+      Accelerometer.setUpdateInterval(500);
+      subscription = Accelerometer.addListener((data) => {
+        // Anticlockwise rotation (Landscape Left): positive X gravity (right side of phone pulls down)
+        // We'll check for x > 0.7 to enforce anticlockwise rotation.
+        if (data.x > 0.7) { 
+          setStatus('calibration-2');
+        }
+      });
+    }
+    return () => {
+      if (subscription) subscription.remove();
+    };
+  }, [status]);
+
+  // Countdown for automatic recording
+  useEffect(() => {
+    let timer = null;
+    if (status === 'calibration-2') {
+      if (countdown > 0) {
+        timer = setTimeout(() => {
+          setCountdown((prev) => prev - 1);
+        }, 1000);
+      } else {
+        // Countdown finished, start recording!
+        startRecording();
+      }
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [status, countdown]);
+
+  // Rotation Animation for Step 1
   useEffect(() => {
     if (status === 'calibration-1') {
       Animated.loop(
         Animated.sequence([
           Animated.timing(rotationAnim, {
-            toValue: -1,
+            toValue: -1, // -90 deg
             duration: 1500,
             easing: Easing.inOut(Easing.ease),
             useNativeDriver: true,
@@ -74,27 +113,8 @@ function SignToSpeechScreen({ navigate }) {
           Animated.delay(500),
         ])
       ).start();
-    } else if (status === 'calibration-2') {
-      rotationAnim.setValue(-1);
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.5,
-            duration: 1000,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 1000,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
     } else {
       rotationAnim.stopAnimation();
-      pulseAnim.stopAnimation();
     }
   }, [status]);
 
@@ -194,45 +214,58 @@ function SignToSpeechScreen({ navigate }) {
   const renderCalibrationOverlay = () => {
     if (status !== 'calibration-1' && status !== 'calibration-2') return null;
 
-    const spin = rotationAnim.interpolate({
-      inputRange: [-1, 0],
-      outputRange: ['-90deg', '0deg']
-    });
+    if (status === 'calibration-1') {
+      const spin = rotationAnim.interpolate({
+        inputRange: [-1, 0],
+        outputRange: ['-90deg', '0deg']
+      });
 
-    return (
-      <View style={styles.calibrationOverlay}>
-        <View style={styles.calibrationContent}>
-          <Animated.View style={{ transform: [{ rotate: spin }, { scale: pulseAnim }] }}>
-            <User color={COLORS.primaryEnd} size={100} strokeWidth={1.5} />
-          </Animated.View>
-          
-          <Text style={styles.calibrationTitle}>
-            {status === 'calibration-1' ? "Rotate Your Phone" : "Position Yourself"}
-          </Text>
-          <Text style={styles.calibrationSubtitle}>
-            {status === 'calibration-1' 
-              ? "Please rotate your phone sideways (Landscape) for the best prediction." 
-              : "Position yourself within the frame so your upper body and hands are clearly visible."}
-          </Text>
-          
-          <TouchableOpacity 
-            style={styles.calibrationButton}
-            onPress={() => setStatus(status === 'calibration-1' ? 'calibration-2' : 'idle')}
-          >
-            <LinearGradient
-              colors={[COLORS.primary, COLORS.primaryEnd]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.calibrationButtonGradient}
-            >
-              <Text style={styles.calibrationButtonText}>
-                {status === 'calibration-1' ? "I have rotated my phone" : "Ready to Sign"}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+      return (
+        <View style={styles.calibrationOverlay}>
+          <View style={styles.calibrationContent}>
+            <Animated.View style={{ transform: [{ rotate: spin }] }}>
+              <User color={COLORS.primaryEnd} size={100} strokeWidth={1.5} />
+            </Animated.View>
+            
+            <Text style={styles.calibrationTitle}>Rotate Your Phone</Text>
+            <Text style={styles.calibrationSubtitle}>
+              Please rotate your phone anti-clockwise (Landscape) to begin.
+            </Text>
+          </View>
         </View>
-      </View>
-    );
+      );
+    }
+
+    if (status === 'calibration-2') {
+      return (
+        <View style={styles.calibrationOverlayTransparent}>
+          <Svg height="100%" width="100%" viewBox="0 0 400 800" style={StyleSheet.absoluteFill}>
+            <Defs>
+              <Mask id="mask" x="0" y="0" height="100%" width="100%">
+                <Rect height="100%" width="100%" fill="white" />
+                <Path
+                  d="M 200,150 m -70,0 a 70,70 0 1,0 140,0 a 70,70 0 1,0 -140,0 M 130,260 C 50,300 20,400 20,800 L 380,800 C 380,400 350,300 270,260 C 240,290 160,290 130,260 Z"
+                  fill="black"
+                />
+              </Mask>
+            </Defs>
+            <Rect height="100%" width="100%" fill="rgba(15, 23, 42, 0.75)" mask="url(#mask)" />
+            <Path
+              d="M 200,150 m -70,0 a 70,70 0 1,0 140,0 a 70,70 0 1,0 -140,0 M 130,260 C 50,300 20,400 20,800 L 380,800 C 380,400 350,300 270,260 C 240,290 160,290 130,260 Z"
+              fill="none"
+              stroke={COLORS.primaryEnd}
+              strokeWidth="4"
+              strokeDasharray="10, 15"
+            />
+          </Svg>
+          
+          <View style={styles.countdownContainer}>
+            <Text style={styles.countdownText}>{countdown}</Text>
+            <Text style={styles.countdownSubtitle}>Position yourself inside the outline. Recording starting...</Text>
+          </View>
+        </View>
+      );
+    }
   };
 
   return (
@@ -330,6 +363,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: SPACING.xxl,
+    zIndex: 5,
+  },
+  calibrationOverlayTransparent: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 5,
   },
   calibrationContent: {
     alignItems: 'center',
@@ -352,19 +392,32 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontSize: 15,
     textAlign: 'center',
-    marginBottom: SPACING.xxxl,
     lineHeight: 22,
   },
-  calibrationButtonGradient: {
-    paddingVertical: 14,
-    paddingHorizontal: 30,
-    borderRadius: RADIUS.round,
+  countdownContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
   },
-  calibrationButtonText: {
+  countdownText: {
+    fontFamily: TYPOGRAPHY.fontFamily.heading,
+    fontSize: 120,
+    color: '#FFF',
+    textShadowColor: COLORS.primaryEnd,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 30,
+  },
+  countdownSubtitle: {
     fontFamily: TYPOGRAPHY.fontFamily.bodyBold,
     color: '#FFF',
-    fontSize: 16,
-  },
+    fontSize: 18,
+    textAlign: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 20,
+  }
 });
 
 export default SignToSpeechScreen;
