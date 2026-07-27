@@ -19,7 +19,7 @@ import {
   Video,
   Square,
   ArrowLeft,
-  User,
+  Smartphone,
 } from 'lucide-react-native';
 import { useChat } from '../../ChatContext';
 import COLORS from '../constants/colors';
@@ -33,7 +33,6 @@ function SignToSpeechScreen({ navigate }) {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [cameraRef, setCameraRef] = useState(null);
   const [audioPermission, setAudioPermission] = useState(null);
-  const [countdown, setCountdown] = useState(3);
 
   const [rotationAnim] = useState(new Animated.Value(0));
   const [pulseAnim] = useState(new Animated.Value(1));
@@ -73,24 +72,6 @@ function SignToSpeechScreen({ navigate }) {
       if (subscription) subscription.remove();
     };
   }, [status]);
-
-  // Countdown for automatic recording
-  useEffect(() => {
-    let timer = null;
-    if (status === 'calibration-2') {
-      if (countdown > 0) {
-        timer = setTimeout(() => {
-          setCountdown((prev) => prev - 1);
-        }, 1000);
-      } else {
-        // Countdown finished, start recording!
-        startRecording();
-      }
-    }
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [status, countdown]);
 
   // Rotation Animation for Step 1
   useEffect(() => {
@@ -222,23 +203,16 @@ function SignToSpeechScreen({ navigate }) {
 
       return (
         <View style={styles.calibrationOverlay}>
-          <View style={styles.calibrationContent}>
-            <Animated.View style={{ transform: [{ rotate: spin }] }}>
-              <User color={COLORS.primaryEnd} size={100} strokeWidth={1.5} />
-            </Animated.View>
-            
-            <Text style={styles.calibrationTitle}>Rotate Your Phone</Text>
-            <Text style={styles.calibrationSubtitle}>
-              Please rotate your phone anti-clockwise (Landscape) to begin.
-            </Text>
-          </View>
+          <Animated.View style={{ transform: [{ rotate: spin }] }}>
+            <Smartphone color={COLORS.primaryEnd} size={180} strokeWidth={1} />
+          </Animated.View>
         </View>
       );
     }
 
     if (status === 'calibration-2') {
       return (
-        <View style={styles.calibrationOverlayTransparent}>
+        <View style={styles.calibrationOverlayTransparent} pointerEvents="none">
           <Svg height="100%" width="100%" viewBox="0 0 400 800" style={StyleSheet.absoluteFill}>
             <Defs>
               <Mask id="mask" x="0" y="0" height="100%" width="100%">
@@ -246,6 +220,8 @@ function SignToSpeechScreen({ navigate }) {
                 <Path
                   d="M 200,150 m -70,0 a 70,70 0 1,0 140,0 a 70,70 0 1,0 -140,0 M 130,260 C 50,300 20,400 20,800 L 380,800 C 380,400 350,300 270,260 C 240,290 160,290 130,260 Z"
                   fill="black"
+                  rotation="90"
+                  origin="200, 400"
                 />
               </Mask>
             </Defs>
@@ -256,13 +232,10 @@ function SignToSpeechScreen({ navigate }) {
               stroke={COLORS.primaryEnd}
               strokeWidth="4"
               strokeDasharray="10, 15"
+              rotation="90"
+              origin="200, 400"
             />
           </Svg>
-          
-          <View style={styles.countdownContainer}>
-            <Text style={styles.countdownText}>{countdown}</Text>
-            <Text style={styles.countdownSubtitle}>Position yourself inside the outline. Recording starting...</Text>
-          </View>
         </View>
       );
     }
@@ -282,21 +255,25 @@ function SignToSpeechScreen({ navigate }) {
         </CameraView>
       </View>
 
-      {/* CONTROLS */}
-      <View style={styles.controls}>
-        {status === 'idle' ? (
+      {/* BOTTOM CONTROLS */}
+      {(status === 'calibration-2' || status === 'idle') && (
+        <View style={styles.controls}>
           <TouchableOpacity onPress={startRecording} style={styles.controlButtonWrapper}>
             <LinearGradient
-              colors={[COLORS.accent, COLORS.accentEnd]}
+              colors={[COLORS.primary, COLORS.primaryEnd]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.controlButton}
             >
-              <Video color="#FFF" size={24} />
-              <Text style={styles.controlButtonText}>Record</Text>
+              <Video color="#FFF" size={20} />
+              <Text style={styles.controlButtonText}>Record Sign</Text>
             </LinearGradient>
           </TouchableOpacity>
-        ) : (
+        </View>
+      )}
+
+      {status === 'recording' && (
+        <View style={styles.controls}>
           <TouchableOpacity onPress={stopRecording} style={styles.controlButtonWrapper}>
             <LinearGradient
               colors={[COLORS.error, '#ff6b6b']}
