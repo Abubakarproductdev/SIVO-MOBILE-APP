@@ -33,10 +33,13 @@
       }
     },
     "updates": {
-      "url": "https://u.expo.dev/682860b8-da88-40d0-a880-73a613713c0a"
+      "enabled": false
     },
     "runtimeVersion": {
       "policy": "appVersion"
-    }
+    },
+    "plugins": [
+      "expo-asset"
+    ]
   }
 }
