@@ -22,7 +22,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#4A2F76"
       },
-      "package": "com.muhammad_abubakar1122.sivoapp4"
+      "package": "com.muhammad_abubakar1122.sivoapp4",
+      "allowBackup": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
